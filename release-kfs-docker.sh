@@ -53,7 +53,6 @@ echo "Next development iteration: $developmentVersion"
 echo "Previous release version: $previousReleaseVersion"
 echo "Current development iteration: $previousDevelopmentVersion"
 
-#TODO make working dir configurable?
 # Remove any existing temporary directory
 rm -Rf /tmp/repo
 
@@ -80,11 +79,11 @@ git checkout -b $releaseTicketNumber development
 git commit -am "$releaseTicketNumber Updating kfs version for release $releaseVersion"
 git push origin "$releaseTicketNumber"
 git checkout development
-git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber" #TODO add message
+git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber"
 git push origin development
 git checkout master
 git pull
-git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber" #TODO add message
+git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber"
 git push origin master
 
 # Clean up release branch
@@ -94,5 +93,3 @@ git push origin --tags
 git push origin --delete $releaseTicketNumber
 git checkout development
 git branch -d $releaseTicketNumber
-
-#TODO delete temp directory? May want to keep around for debugging purposes, especially since removing an existing is already done
