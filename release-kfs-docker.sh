@@ -100,8 +100,6 @@ git push origin master
 
 # Clean up release branch
 git checkout $releaseTicketNumber
-git tag archive/$releaseTicketNumber $releaseTicketNumber
-git push origin --tags
 git push origin --delete $releaseTicketNumber
 git checkout development
 git branch -d $releaseTicketNumber
