@@ -1,7 +1,7 @@
 #!/bin/bash
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-riceRepoUrl='git@github.com:ua-eas/devops-automation-ksd-kc5.2.1-rice.git'
+riceRepoUrl='git@github.com:ua-eas/ksd-kc5.2.1-rice.git'
 releasePrefix="ua-release"
 # Prompt user for different URLs, if needed
 echo -n "Input Rice repo URL (default: $riceRepoUrl): "

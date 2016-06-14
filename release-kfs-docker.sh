@@ -1,8 +1,8 @@
 #!/bin/bash
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-kfsRepoUrl='git@github.com:ua-eas/kfs-devops-automation-fork.git'
-dockerRepoUrl='git@github.com:ua-eas/devops-automation-docker-kfs6.git'
+kfsRepoUrl='git@github.com:ua-eas/kfs.git'
+dockerRepoUrl='git@github.com:ua-eas/docker-kfs6.git'
 releasePrefix="ua-release"
 
 # Prompt user for different URLs, if needed
