@@ -1,5 +1,5 @@
 #!/bin/bash
-kfsRepoUrl='git@github.com:ua-eas/kfs-devops-automation-fork.git'
+kfsRepoUrl='git@github.com:ua-eas/kfs.git'
 # Prompt user for different URLs, if needed
 echo -n "Input KFS repo URL (default: $kfsRepoUrl): "
 read inputKfsRepoUrl

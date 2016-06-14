@@ -3,7 +3,7 @@ Scripts used to automate as much of our processes as possible.
 
 ## release-rice.sh
 Accepts four inputs:
-* Rice repo URL (default:  git@github.com:ua-eas/devops-automation-ksd-kc5.2.1-rice.git)
+* Rice repo URL (default: git@github.com:ua-eas/ksd-kc5.2.1-rice.git)
 * Release ticket number
 * Release version number
 * Version prefix (default: ua-release)
@@ -16,8 +16,8 @@ For more information on how to use this script in the UA KFS release process, se
 
 ## release-kfs-docker.sh
 Accepts five inputs:
-* KFS repo URL (default:  git@github.com:ua-eas/kfs-devops-automation-fork.git)
-* KFS Docker repo url (default: git@github.com:ua-eas/devops-automation-docker-kfs6.git)
+* KFS repo URL (default: git@github.com:ua-eas/kfs.git)
+* KFS Docker repo url (default: git@github.com:ua-eas/docker-kfs6.git)
 * Release ticket number
 * Release version number
 * Version prefix (default: ua-release)
@@ -28,7 +28,7 @@ After KFS has been updated, checks out the Docker KFS repository from the specif
 
 ## cleanup-feature-branch.sh
 Accepts two inputs:
-* URL of the repository to use (default: git@github.com:ua-eas/kfs-devops-automation-fork.git)
+* URL of the repository to use (default: git@github.com:ua-eas/kfs.git)
 * List of comma-separated feature branch names to archive and delete (for example, "UAF-A,UAF-B,UAF-C,..."), and iterates over each branch doing the following:
  * Tag branch as `archive/<branchname>`
  * Push tag `archive/<branchname>` to origin
