@@ -27,8 +27,9 @@ After KFS has been updated, checks out the Docker KFS repository from the specif
 
 
 ## cleanup-feature-branch.sh
-Accepts two inputs:
+Accepts three inputs:
 * URL of the repository to use (default: git@github.com:ua-eas/kfs.git)
+* Name of the development branch (default: ua-development)
 * List of comma-separated feature branch names to archive and delete (for example, "UAF-A,UAF-B,UAF-C,..."), and iterates over each branch doing the following:
  * Tag branch as `archive/<branchname>`
  * Push tag `archive/<branchname>` to origin
