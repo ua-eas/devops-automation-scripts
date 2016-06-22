@@ -26,10 +26,10 @@ cd /tmp/repo/kfs
 #   push the archived tag, and delete the branch.
 for branch in "${branches[@]}"; do
     echo "Processing branch $branch"
-    git checkout -b $branch origin/$branch
-    git tag archive/$branch $branch
-    git push origin --tags
-    git push origin --delete $branch
-    git checkout $developmentBranch
-    git branch -d $branch
+    git checkout -b $branch origin/$branch && \
+    git tag archive/$branch $branch && \
+    git push origin --tags && \
+    git push origin --delete $branch && \
+    git checkout $developmentBranch && \
+    git branch -d $branch || echo "ERROR - Problem processing branch $branch"
 done
