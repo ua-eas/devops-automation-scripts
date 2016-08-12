@@ -65,4 +65,4 @@ cd /tmp/repo/rice
 mvn -DskipTests=true jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
     -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$riceRepoUrl && \
 mvn -DskipTests=true jgitflow:release-finish -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
-    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$kfsRepoUrl
+    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$riceRepoUrl
