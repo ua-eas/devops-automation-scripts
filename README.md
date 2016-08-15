@@ -25,6 +25,14 @@ Accepts five inputs:
 Checks out the KFS repository from the specified url into `/tmp/repo/kfs` (removing any existing files), and executes Maven JGitFlow plugin `release-start` and `release-finish` goals as configured in the KFS project `pom.xml`.  
 After KFS has been updated, checks out the Docker KFS repository from the specified url into `/tmp/repo/docker` (removing any existing files), and replaces the previous KFS version strings with values for the newly released KFS and commits the change to both `development` and `master` branches.
 
+## release-kfs-help.sh
+Accepts four inputs:
+* KFS help text repo URL (default: git@github.com:ua-eas/kfs-help.git)
+* Release ticket number
+* Release version number
+* Version prefix (default: ua-release)
+
+Checks out the kfs-help repository from the specified url into `/tmp/repo/kfs-help` (removing any existing files), and executes Maven JGitFlow plugin `release-start` and `release-finish` goals as configured in the kfs-help project `pom.xml`.  
 
 ## cleanup-feature-branch.sh
 Accepts three inputs:
