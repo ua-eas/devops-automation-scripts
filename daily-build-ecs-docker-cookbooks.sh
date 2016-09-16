@@ -5,7 +5,7 @@ cookbooksRepo='git@bitbucket.org:ua-ecs/ecs-opsworks-cookbooks.git'
 branch='CLOUD-32'
 
 rm -Rf /tmp/repo
-git clone $cookbooksRepo /tmp/repo/ecs-opsworks-cookbooks
+git clone -b $branch $cookbooksRepo /tmp/repo/ecs-opsworks-cookbooks
 cd /tmp/repo/ecs-opsworks-cookbooks/kfs
 
 packageName=kfs-cookbooks-$branch.tar.gz
