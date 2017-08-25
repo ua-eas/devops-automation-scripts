@@ -2,7 +2,7 @@
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
 riceRepoUrl='git@github.com:ua-eas/ksd-kc5.2.1-rice.git'
-releasePrefix="ua-release"
+releasePrefix="2.5.19-ua-release"
 # Prompt user for different URLs, if needed
 echo -n "Input Rice repo URL (default: $riceRepoUrl): "
 read inputRiceRepoUrl
