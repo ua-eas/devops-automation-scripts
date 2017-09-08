@@ -2,7 +2,7 @@
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
 riceRepoUrl='git@github.com:ua-eas/ksd-kc5.2.1-rice.git'
-releasePrefix="ua-release"
+releasePrefix="2.5.19-ua-release"
 # Prompt user for different URLs, if needed
 echo -n "Input Rice repo URL (default: $riceRepoUrl): "
 read inputRiceRepoUrl
@@ -48,10 +48,15 @@ previousReleaseVersion="$releasePrefix$(($value-1))"
 previousDevelopmentVersion="$releasePrefix$(($value))-SNAPSHOT"
 
 # echo out versions for sanity purposes
+echo ""
 echo "Release version: $releaseVersion"
 echo "Next development iteration: $developmentVersion"
 echo "Previous release version: $previousReleaseVersion"
 echo "Current development iteration: $previousDevelopmentVersion"
+echo ""
+
+# Have user verify values are OK before continuing
+read -p "Press Enter to continue... "
 
 # Remove any existing temporary directory
 rm -Rf /tmp/repo

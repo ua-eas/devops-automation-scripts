@@ -1,9 +1,8 @@
 #!/bin/bash
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-kfsRepoUrl='git@github.com:ua-eas/kfs.git'
-dockerRepoUrl='git@github.com:ua-eas/docker-kfs6.git'
-releasePrefix="ua-release"
+kfsRepoUrl='git@github.com:ua-eas/financials.git'
+releasePrefix="7.20170323-ua-release"
 
 # Prompt user for different URLs, if needed
 echo -n "Input KFS repo URL (default: $kfsRepoUrl): "
@@ -11,13 +10,6 @@ read inputKfsRepoUrl
 if [[ $inputKfsRepoUrl ]]; then
     echo "Using KFS repo Url: $inputKfsRepoUrl"
     kfsRepoUrl=$inputKfsRepoUrl
-fi
-
-echo -n "Input Docker repo URL (default: $dockerRepoUrl): "
-read inputDockerRepoUrl
-if [[ $inputDockerRepoUrl ]]; then
-    echo "Using KFS repo Url: $inputDockerRepoUrl"
-    dockerRepoUrl=$inputDockerRepoUrl
 fi
 
 # Prompt user for the release ticket number to prepend to commit messages
@@ -57,10 +49,15 @@ previousReleaseVersion="$releasePrefix$(($value-1))"
 previousDevelopmentVersion="$releasePrefix$(($value))-SNAPSHOT"
 
 # echo out versions for sanity purposes
+echo ""
 echo "Release version: $releaseVersion"
 echo "Next development iteration: $developmentVersion"
 echo "Previous release version: $previousReleaseVersion"
 echo "Current development iteration: $previousDevelopmentVersion"
+echo ""
+
+# Have user verify values are OK before continuing
+read -p "Press Enter to continue... "
 
 # Remove any existing temporary directory
 rm -Rf /tmp/repo
@@ -72,34 +69,6 @@ cd /tmp/repo/kfs
 # Utilize the jgitflow plugin to generate the release for KFS
 # For more information: https://bitbucket.org/atlassian/jgit-flow
 mvn -DskipTests=true jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
-    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$kfsRepoUrl && \
+    -DscmCommentPrefix="$releaseTicketNumber - " -DdefaultOriginUrl=$kfsRepoUrl && \
 mvn -DskipTests=true jgitflow:release-finish -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
-    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$kfsRepoUrl
-
-# Check out Docker repo
-git clone $dockerRepoUrl /tmp/repo/docker
-cd /tmp/repo/docker
-git checkout development
-# Need to increment versions that are configured for the various Docker environments
-sed -i "s/ENV KFS_VERSION_DEV=$previousDevelopmentVersion/ENV KFS_VERSION_DEV=$developmentVersion/g" /tmp/repo/docker/Dockerfile
-sed -i "s/ENV KFS_VERSION_TST=$previousDevelopmentVersion/ENV KFS_VERSION_TST=$developmentVersion/g" /tmp/repo/docker/Dockerfile
-sed -i "s/ENV KFS_VERSION_STG=$previousReleaseVersion/ENV KFS_VERSION_STG=$releaseVersion/g" /tmp/repo/docker/Dockerfile
-# See the original manual steps confluence page for description of these steps.
-# Essentially follows Git Flow, using the release ticket number as the name of the release branch
-
-git checkout -b $releaseTicketNumber development
-git commit -am "$releaseTicketNumber Updating kfs version for release $releaseVersion"
-git push origin "$releaseTicketNumber"
-git checkout development
-git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber"
-git push origin development
-git checkout master
-git pull
-git merge -m "$releaseTicketNumber Merging release branch $releaseTicketNumber for release $releaseVersion" "$releaseTicketNumber"
-git push origin master
-
-# Clean up release branch
-git checkout $releaseTicketNumber
-git push origin --delete $releaseTicketNumber
-git checkout development
-git branch -d $releaseTicketNumber
+    -DscmCommentPrefix="$releaseTicketNumber - " -DdefaultOriginUrl=$kfsRepoUrl
