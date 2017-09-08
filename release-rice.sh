@@ -68,6 +68,6 @@ cd /tmp/repo/rice
 # Utilize the jgitflow plugin to generate the release for KFS
 # For more information: https://bitbucket.org/atlassian/jgit-flow
 mvn -DskipTests=true jgitflow:release-start -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
-    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$riceRepoUrl && \
+    -DscmCommentPrefix="$releaseTicketNumber - " -DdefaultOriginUrl=$riceRepoUrl && \
 mvn -DskipTests=true jgitflow:release-finish -DreleaseVersion=$releaseVersion -DdevelopmentVersion=$developmentVersion \
-    -DscmCommentPrefix="$releaseTicketNumber " -DdefaultOriginUrl=$riceRepoUrl
+    -DscmCommentPrefix="$releaseTicketNumber - " -DdefaultOriginUrl=$riceRepoUrl
