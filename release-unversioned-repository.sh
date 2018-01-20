@@ -34,6 +34,7 @@ echo ""
 # Have user verify values are OK before continuing
 read -p "Press Enter to continue... "
 
+rm -rf /tmp/repo/release
 git clone $repoUrl /tmp/repo/release
 cd /tmp/repo/release
 
