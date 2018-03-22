@@ -1,8 +1,10 @@
 #!/bin/bash
 # Default repository URL values. 
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-kfsRepoUrl='git@github.com:ua-eas/financials.git'
-releasePrefix="7.20170323-ua-release"
+#kfsRepoUrl='git@github.com:ua-eas/financials.git'
+kfsRepoUrl='git@github.com:ua-eas/jgitflow-testing.git'
+releasePrefix="TEST-release"
+ticketNumber="TEST-1234"
 
 # Prompt user for different URLs, if needed
 echo -n "Input KFS repo URL (default: $kfsRepoUrl): "
@@ -13,10 +15,13 @@ if [[ $inputKfsRepoUrl ]]; then
 fi
 
 # Prompt user for the release ticket number to prepend to commit messages
-echo -n "Input release ticket number: "
+echo -n "Input release ticket number (default: $ticketNumber): "
 read releaseTicketNumber
-if [[ -z "$releaseTicketNumber" ]]; then
-    echo "Release ticket number must be entered!"
+#if [[ -z "$releaseTicketNumber" ]]; then
+if [[ "$releaseTicketNumber" ]]; then
+    #echo "Release ticket number must be entered!"
+    echo "Using KFS repo Url: $ticketNumber"
+	ticketNumber=$ticketNumber
     exit    
 fi
 
