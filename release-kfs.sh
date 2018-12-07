@@ -1,7 +1,12 @@
 #!/bin/bash
-# Default repository URL values. 
+# Default repository URL values.
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-kfsRepoUrl='git@github.com:ua-eas/financials.git'
+
+# Because jgitflow is broken and SSH does not work, we are using HTTPS until it is fixed or we change build process/plugins
+#kfsRepoUrl='git@github.com:ua-eas/financials.git'
+
+# HTTPS Download
+kfsRepoUrl='https://github.com/ua-eas/financials.git'
 releasePrefix="7.20170323-ua-release"
 
 # Prompt user for different URLs, if needed
@@ -17,7 +22,7 @@ echo -n "Input release ticket number: "
 read releaseTicketNumber
 if [[ -z "$releaseTicketNumber" ]]; then
     echo "Release ticket number must be entered!"
-    exit    
+    exit
 fi
 
 # Some math needs to be done on the version number, so it must be declared as an integer before being used
@@ -27,7 +32,7 @@ declare -i value
 echo -n "Input release version number (just the number): "
 read value
 
-# Since 'value' is declared as an integer, it is initialized as 0. 
+# Since 'value' is declared as an integer, it is initialized as 0.
 # If no version is entered by the user, it will still be 0, which is an invalid build version
 if [ $value -eq 0 ]; then
     echo "Release version must be entered!"
