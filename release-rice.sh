@@ -1,7 +1,12 @@
 #!/bin/bash
-# Default repository URL values. 
+# Default repository URL values.
 # These are set to test repositories to avoid inadvertendly modifying main repositories
-riceRepoUrl='git@github.com:ua-eas/ksd-kc5.2.1-rice.git'
+
+# Because jgitflow is broken and SSH does not work, we are using HTTPS until it is fixed or we change build process/plugins
+#riceRepoUrl='git@github.com:ua-eas/ksd-kc5.2.1-rice.git'
+
+# HTTPS Download
+riceRepoUrl='https://github.com/ua-eas/ksd-kc5.2.1-rice.git'
 releasePrefix="2.5.19-ua-release"
 # Prompt user for different URLs, if needed
 echo -n "Input Rice repo URL (default: $riceRepoUrl): "
@@ -16,7 +21,7 @@ echo -n "Input release ticket number: "
 read releaseTicketNumber
 if [[ -z "$releaseTicketNumber" ]]; then
     echo "Release ticket number must be entered!"
-    exit    
+    exit
 fi
 
 # Some math needs to be done on the version number, so it must be declared as an integer before being used
@@ -26,7 +31,7 @@ declare -i value
 echo -n "Input release version number (just the number): "
 read value
 
-# Since 'value' is declared as an integer, it is initialized as 0. 
+# Since 'value' is declared as an integer, it is initialized as 0.
 # If no version is entered by the user, it will still be 0, which is an invalid build version
 if [ $value -eq 0 ]; then
     echo "Release version must be entered!"
