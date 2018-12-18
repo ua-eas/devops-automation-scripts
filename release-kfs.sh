@@ -7,7 +7,7 @@
 
 # HTTPS Download
 kfsRepoUrl='https://github.com/ua-eas/financials.git'
-releasePrefix="7.20170323-ua-release"
+releasePrefix="7.20170511-ua-release"
 
 # Prompt user for different URLs, if needed
 echo -n "Input KFS repo URL (default: $kfsRepoUrl): "
