@@ -7,7 +7,7 @@
 
 # HTTPS Download
 riceRepoUrl='https://github.com/ua-eas/ksd-kc5.2.1-rice.git'
-releasePrefix="2.5.19-ua-release"
+releasePrefix="2.6.0-ua-release"
 # Prompt user for different URLs, if needed
 echo -n "Input Rice repo URL (default: $riceRepoUrl): "
 read inputRiceRepoUrl
