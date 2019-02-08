@@ -153,13 +153,13 @@ def get_event_message(event):
 
 # The SNS will send an 'event' with a message attached.
 # Grab the event and see if it has the 'Records' in it, and if so send it off to be processed
-# If not, send an email that we have no events recorded.  Doubtful, but just a troubleshooting part.
+# If not, send an email that we have no events recorded.
 def lambda_handler(event, context):
     if "Records" in event:
         event = event["Records"][0]
         get_event_message(event)
     else:
-        EMAIL_BODY_HTML = "NO VALID EVENT FOUND"
-        EMAIL_BODY_TXT = "NO VALUD EVENT FOUND"
-        SUBJECT = "SNS Alert with no event"
+        EMAIL_BODY_HTML = "KFS PRD Alarm, but NO DATA from SNS found, please check the KFS PRD instances"
+        EMAIL_BODY_TXT = "KFS PRD Alarm, but NO DATA from SNS found, please check the KFS PRD instances"
+        SUBJECT = "KFS PRD Alert with no data"
         send_email(EMAIL_BODY_HTML, EMAIL_BODY_TXT,SUBJECT)
