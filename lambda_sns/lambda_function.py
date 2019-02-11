@@ -24,8 +24,10 @@ SENDER = "katt-automation-toolsadm@list.arizona.edu"
 # ADD NEW EMAILS HERE AS NEEDED.
 RECIPIENT = ["katt-automation-toolsadm@list.arizona.edu", "ua_met_app@tbginc.com"]
 
-# If necessary, replace us-west-2 with the AWS Region you're using for Amazon SES.
-AWS_REGION = "us-west-2"
+# Get the current region the lambda function is running.
+# For now we are going to assume that the SES service is in the same region
+# which is how we have defined our current architecture
+AWS_REGION = os.environ['AWS_REGION']
 
 # Convert a datetime object into milleseconds from the unix epoch
 def unix_time_millis(dt):
@@ -143,12 +145,14 @@ def format_email(message):
     EMAIL_BODY_TXT += METRIC_DETAILS_TXT
     EMAIL_BODY_HTML += METRIC_DETAILS_HTML
 
+    # now off to send email!
     send_email(EMAIL_BODY_HTML, EMAIL_BODY_TXT,SUBJECT)
 
 # simple function to just pull the 'message' from the event.  we can expand on this if needed
 def get_event_message(event):
     messageText = event["Sns"]["Message"]
     message = json.loads(messageText)
+    # Off to format the message in an email
     format_email(message)
 
 # The SNS will send an 'event' with a message attached.
@@ -157,6 +161,7 @@ def get_event_message(event):
 def lambda_handler(event, context):
     if "Records" in event:
         event = event["Records"][0]
+        # go get the event message that we care about
         get_event_message(event)
     else:
         EMAIL_BODY_HTML = "KFS PRD Alarm, but NO DATA from SNS found, please check the KFS PRD instances"
