@@ -102,26 +102,26 @@ def format_email(message):
     SUBJECT = "ALARM: {0} in {1}".format(alarmName, region)
 
     # Creating the basic header of the email for TXT
-    EMAIL_BODY_TXT = """
-        You are receiving this email because your Amazon CloudWatch Alarm \"{0}\" in the \"{1}\" region has entered the ALARM state, because \"{2}\" at \"{3}\".\n
+    EMAIL_BODY_TXT = f"""
+        You are receiving this email because your Amazon CloudWatch Alarm '{alarmName}'' in the '{region}'' region has entered the ALARM state, because '{newStateReason}'' at '{timestamp}'.\n
 
         View this alarm in the AWS Management Console:\n
-        https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#s=Alarms&alarm={0}\n
+        https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#s=Alarms&alarm={alarmName}\n
 
         Alarm Details:\n
-        """.format(alarmName, region, newStateReason, timestamp )
+        """
 
     # Creating the basic header of the email for HTML emails
-    EMAIL_BODY_HTML = """<html>
+    EMAIL_BODY_HTML = f"""<html>
         <head></head>
         <body>
-        <p>You are receiving this email because your Amazon CloudWatch Alarm \"{0}\" in the \"{1}\" region has entered the ALARM state, because \"{2}\" at \"{3}\"<p/>
+        <p>You are receiving this email because your Amazon CloudWatch Alarm '{alarmName}' in the '{region}' region has entered the ALARM state, because \"{newStateReason}\" at \"{timestamp}\"<p/>
 
         <p>View this alarm in the AWS Management Console:</p>
-        <p>https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#s=Alarms&alarm={0}</p>
+        <p>https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#s=Alarms&alarm={alarmName}</p>
 
         <p>Alarm Details:<br />
-        """.format(alarmName, region, newStateReason, timestamp )
+        """
 
     # Separating out the Metrics section this will be found in the message["Trigger"]
     METRIC_DETAILS_TXT = "\nMonitored Metric:\n"
