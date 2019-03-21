@@ -1,21 +1,21 @@
 # University of Arizona Kuali DevOps - Miscellaneous Scripts
 
 ## Description
----
+
 Scripts that have been used when DevOps team members worked on various tasks.
 
 ## Scripts
----
-#### createDailyTestFiles
-##### Description
+
+### createDailyTestFiles
+#### Description
 A bash script that will create uniquely named files based on the current day of the month. Used in situations where we need one file per day - such as a daily status file. Each file will have the day of the month in its name, and have a timestamp of midnight on that day of the month.
 
-##### Running
+#### Running
 You can run this script on the command line. It requires two parameters:
 1. The first argument is the directory path of the files. The script will create the directory if it does not exist.
 2. The second argument is the desired file prefix. For example, if `clearCacheJob` is used, a resulting file is clearCacheJob01.status.
 
-##### Example
+#### Example
 If you run `bash createDailyTestFiles.sh /Users/hlo/test clearCacheJob`, the result is:
 
 ```
