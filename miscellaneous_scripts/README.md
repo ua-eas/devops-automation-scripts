@@ -48,3 +48,19 @@ drwxr-xr-x+ 61 hlo  staff  1952 Mar 19 11:22 ..
 -rw-r--r--   1 hlo  staff     0 Mar 20 00:00 clearCacheJob20.status
 -rw-r--r--   1 hlo  staff     0 Mar 21 00:00 clearCacheJob21.status
 ```
+
+### Bounce Prototype python script
+#### Description
+PURPOSE:  Jenkins script to bounce the docker containers of a prototype instance.
+
+How to use:
+   1.  Enter Stack Name:  (devfin151, devfin151-proto, etc)
+   2.  Choose what you want to restart
+         2a. KFS
+         2b. RICE
+         2c. BOTH
+
+This 'should' bounce all instances for the app you choose(kfs/rice), or all instances in the stack if you choose 'BOTH'.  So far in testing it will bounce all instances even if you have multiple KFS or RICE like STG does.
+
+NOTE:  This does not allow DEV/TST/STG/TRN to be restarted at this time. 
+
