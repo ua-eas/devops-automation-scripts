@@ -38,6 +38,12 @@ EOF
 
 }
 
+#if stackname is NOT dev/tst/stg then go ahead
+if [ "$ENV_SLUG" == "dev" ] || [ "$ENV_SLUG" == "tst" ] || [ "$ENV_SLUG" == "stg" ] || [ "$ENV_SLUG" == "trn" ] || [[ "$ENV_SLUG" == *"jenkins"* ]]; then
+    echo "$ENV_SLUG is not allowed to be stopped by this job"
+    exit 1
+fi
+
 # NOTE: ENV_SLUG is passed in from the previous jobs and used in the route53 command below
 ROUTE53_INFO=`aws route53 --region us-west-2 list-resource-record-sets --hosted-zone-id  ZP57AJPWE08JI --query "ResourceRecordSets[?contains(Name, '$ENV_SLUG') && Type == 'A']" --output=text`
 
