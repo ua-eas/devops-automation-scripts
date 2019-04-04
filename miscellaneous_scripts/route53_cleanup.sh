@@ -12,9 +12,6 @@ shopt -s nocasematch
 export AWS_DEFAULT_REGION=us-west-2
 set +x
 
-
-
-
 # function to hold the JSON needed for the change-resource-record-sets
 jsonDump() {
 
@@ -40,8 +37,6 @@ cat <<EOF
 EOF
 
 }
-
-
 
 # NOTE: ENV_SLUG is passed in from the previous jobs and used in the route53 command below
 ROUTE53_INFO=`aws route53 --region us-west-2 list-resource-record-sets --hosted-zone-id  ZP57AJPWE08JI --query "ResourceRecordSets[?contains(Name, '$ENV_SLUG') && Type == 'A']" --output=text`
