@@ -24,6 +24,13 @@ node ('ec2_java_maven') {
 
                     
                 }
+                stage ('Checkout')
+                {
+                    echo 'Checkout rice repo from develop'
+                    checkout([$class: 'GitSCM', branches: [[name: '*/rice-2.6-ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/ksd-kc5.2.1-rice.git']]])
+
+
+                }
             }
     }
 }
