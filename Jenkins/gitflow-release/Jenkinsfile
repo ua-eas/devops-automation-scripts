@@ -13,6 +13,7 @@ node ('ec2_java_maven') {
             {
                 stage ('Info')
                 {
+                    cleanWs()
                     // RCF Adding INFO messages.
                     echo "DBG: JAVA_HOME: $JAVA_HOME"
                     echo "DBG: PATH+MAVEN: $PATH+MAVEN"
@@ -21,16 +22,31 @@ node ('ec2_java_maven') {
                     echo "DBG: NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                     echo "DBG: RELEASE_START_SCRIPT: $RELEASE_START_SCRIPT"
                     echo "DBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
-
-                    
                 }
                 stage ('Checkout')
                 {
-                    echo 'Checkout rice repo from develop'
-                    checkout([$class: 'GitSCM', branches: [[name: '*/rice-2.6-ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/ksd-kc5.2.1-rice.git']]])
-
-
+                    
+                    echo 'Checkout kfs repo from develop'
+                    
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        checkout([$class: 'GitSCM', branches: [[name: '*/ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                        sh 'git remote -v'
+                        sh 'git branch'
+                        sh "git checkout -b RCF-$NEXT_DEV_VERSION"
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$CURRENT_DEV_VERSION"'
+                        sh 'git add .'
+                        sh 'git status'
+                        sh 'git commit -m "RCFJenkins: Setting pom release version: $CURRENT_DEV_VERSION"'
+                        sh 'git status'
+                        // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
+                        // sh 'git status'
+                    }
                 }
             }
+            
     }
 }
