@@ -4,10 +4,8 @@ node ('ec2_java_maven') {
         withEnv([
             "JAVA_HOME=${tool 'oracle-jdk-8'}",
             "PATH+MAVEN=${tool 'maven-3.3.9'}/bin:${env.JAVA_HOME}/bin",
-            // "PROJECT_ROOT=${env.WORKSPACE}/RelGitFlow",
             "CURRENT_DEV_VERSION=${env.CURRENT_DEV_VERSION}",
             "NEXT_DEV_VERSION=${env.NEXT_DEV_VERSION}",
-            // "RELEASE_START_SCRIPT=src/main/resources/scripts/release-start.sh",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}"
             ]) 
             {
@@ -17,10 +15,8 @@ node ('ec2_java_maven') {
                     // RCF Adding INFO messages.
                     echo "DBG: JAVA_HOME: $JAVA_HOME"
                     echo "DBG: PATH+MAVEN: $PATH+MAVEN"
-                    // echo "DBG: PROJECT_ROOT: $PROJECT_ROOT"
                     echo "DBG: CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION"
                     echo "DBG: NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                    // echo "DBG: RELEASE_START_SCRIPT: $RELEASE_START_SCRIPT"
                     echo "DBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
                 }
                 stage ('Checkout')
