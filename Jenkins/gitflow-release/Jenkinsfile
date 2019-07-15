@@ -28,18 +28,20 @@ node ('ec2_java_maven') {
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
 
-                        
-                        sh 'git remote -v'
-                        sh 'git branch'
+                        // TRY CATCH
                         sh "git checkout -b RCF-$NEXT_DEV_VERSION"
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$CURRENT_DEV_VERSION"'
                         sh 'git add .'
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Setting pom release version: $CURRENT_DEV_VERSION"'
                         sh 'git status'
+                        methodTest();
                         // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // sh 'git status'
                     }
+                }
+                def methodTest(){
+                    echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
                 }
             }
             
