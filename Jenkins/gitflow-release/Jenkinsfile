@@ -7,7 +7,7 @@ node ('ec2_java_maven') {
             // "PROJECT_ROOT=${env.WORKSPACE}/RelGitFlow",
             "CURRENT_DEV_VERSION=${env.CURRENT_DEV_VERSION}",
             "NEXT_DEV_VERSION=${env.NEXT_DEV_VERSION}",
-            "RELEASE_START_SCRIPT=src/main/resources/scripts/release-start.sh",
+            // "RELEASE_START_SCRIPT=src/main/resources/scripts/release-start.sh",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}"
             ]) 
             {
@@ -20,7 +20,7 @@ node ('ec2_java_maven') {
                     // echo "DBG: PROJECT_ROOT: $PROJECT_ROOT"
                     echo "DBG: CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION"
                     echo "DBG: NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                    echo "DBG: RELEASE_START_SCRIPT: $RELEASE_START_SCRIPT"
+                    // echo "DBG: RELEASE_START_SCRIPT: $RELEASE_START_SCRIPT"
                     echo "DBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
                 }
                 stage ('Checkout')
