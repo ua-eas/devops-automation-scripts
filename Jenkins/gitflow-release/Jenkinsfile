@@ -1,4 +1,8 @@
 node ('ec2_java_maven') {
+    def methodTest(){
+        echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
+    }
+
     withCredentials([file(credentialsId: '6ad0a02e-19c2-4824-bb25-3c751a383d10', variable: 'MVN_SETTINGS_XML')]) {
     
         withEnv([
@@ -39,9 +43,6 @@ node ('ec2_java_maven') {
                         // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // sh 'git status'
                     }
-                }
-                def methodTest(){
-                    echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
                 }
             }
             
