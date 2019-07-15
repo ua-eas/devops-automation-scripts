@@ -1,3 +1,7 @@
+// Functions
+def methodTest(){
+    echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
+}
 node ('ec2_java_maven') {
     withCredentials([file(credentialsId: '6ad0a02e-19c2-4824-bb25-3c751a383d10', variable: 'MVN_SETTINGS_XML')]) {
     
@@ -43,7 +47,4 @@ node ('ec2_java_maven') {
             }
             
     }
-}
-def methodTest(){
-    echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
 }
