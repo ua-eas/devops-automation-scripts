@@ -1,7 +1,3 @@
-// Functions
-def methodTest(){
-    echo "calling out methodTest and printing CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION "
-}
 node ('ec2_java_maven') {
     withCredentials([file(credentialsId: '6ad0a02e-19c2-4824-bb25-3c751a383d10', variable: 'MVN_SETTINGS_XML')]) {
     
@@ -22,7 +18,16 @@ node ('ec2_java_maven') {
                     echo "DBG: NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                     echo "DBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
                 }
-                stage ('Create Release Branch')
+                stage ('Create Rice Release Branch')
+                {
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        echo "Checkout Rice:"
+                        def response = input message: 'Proceed with Release?', submitterParameter: 'APP_SUBMITTER'
+                        echo "Answered by ${response}"
+                    }
+                }
+                stage ('Create KFS Release Branch')
                 {        
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
@@ -39,7 +44,7 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Setting pom release version: $CURRENT_DEV_VERSION"'
                         sh 'git status'
-                        methodTest();
+                        
                         // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // sh 'git status'
                     }
