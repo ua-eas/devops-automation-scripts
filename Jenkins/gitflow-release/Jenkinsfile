@@ -7,7 +7,8 @@ node ('ec2_java_maven') {
             "CURRENT_DEV_VERSION=${env.CURRENT_DEV_VERSION}",
             "NEXT_DEV_VERSION=${env.NEXT_DEV_VERSION}",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}",
-            "KFS_BRANCH=*/ua-development"
+            "KFS_BRANCH=*/ua-development",
+            "KFS_URL=https://github.com/ua-eas/financials.git"
             ]) 
             {
                 stage ('Info')
@@ -34,7 +35,8 @@ node ('ec2_java_maven') {
                     {
                         cleanWs()
                         echo "KFS_Branch: " + env.KFS_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
+                        echo "KFS_URL: " + env.KFS_URL
+                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_URL]]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
