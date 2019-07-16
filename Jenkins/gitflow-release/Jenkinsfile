@@ -25,6 +25,7 @@ node ('ec2_java_maven') {
                         echo "Checkout Rice:"
                         def response = input message: 'Proceed with Release?', submitterParameter: 'APP_SUBMITTER'
                         echo "Answered by ${response}"
+                        echo "Answered by ${response['APP_SUBMITTER']}"
 
                     }
                 }
