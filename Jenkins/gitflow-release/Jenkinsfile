@@ -33,7 +33,8 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
+                        echo "KFS_Branch: env.KFS_BRANCH"
+                        checkout([$class: 'GitSCM', branches: [[name: '*/ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
