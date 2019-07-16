@@ -7,6 +7,7 @@ node ('ec2_java_maven') {
             "CURRENT_DEV_VERSION=${env.CURRENT_DEV_VERSION}",
             "NEXT_DEV_VERSION=${env.NEXT_DEV_VERSION}",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}",
+            "KFS_BRANCH='*/ua-development'"
             ]) 
             {
                 stage ('Info')
@@ -23,21 +24,8 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         echo "Checkout Rice:"
-                        def ReleaseInfo = input message: 'Release Information',
-                            parameters: [
-                                string(
-                                    defaultValue: '7.20170511-ua-release99', 
-                                    description: 'Enter Next Version:', 
-                                    name: 'NEXT_VERSION'), 
-                                string(
-                                    defaultValue: '7.20170511-ua-release98', 
-                                    description: 'Enter Current Version:', 
-                                    name: 'CURRENT_VERSION')], 
-                            submitterParameter: 'approver'
-                        echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
-                        echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
-                        echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
-                        echo "Answered by " + ReleaseInfo['approver']
+                        // checkout([$class: 'GitSCM', branches: [[name: '*/ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
+                       
                     }
                 }
                 stage ('Create KFS Release Branch')
@@ -45,7 +33,7 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        checkout([$class: 'GitSCM', branches: [[name: '*/ua-development']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
+                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: 'https://github.com/ua-eas/financials.git']]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
