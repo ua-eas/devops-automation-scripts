@@ -23,7 +23,7 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         echo "Checkout Rice:"
-                        def env.ReleaseInfo = input message: 'Release Information',
+                        env.ReleaseInfo = input message: 'Release Information',
                             parameters: [
                                 string(
                                     defaultValue: '7.20170511-ua-release99', 
