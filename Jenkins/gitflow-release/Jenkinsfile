@@ -23,6 +23,11 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         echo "Checkout Rice:"
+                        def loginInfo = input message: 'LoginMessage',
+                            parameters: [string(defaultValue: '', description: 'Enter Userid:', name: 'userid'), password(defaultValue: '', description: 'Enter Password:', name: 'passwd')]
+                        echo "Username = " + loginInfo['userid']
+                        echo "Password = ${loginInfo['passwd']}"
+                        echo loginInfo.userid + " " + loginInfo.passwd
                     }
                 }
                 stage ('Create KFS Release Branch')
