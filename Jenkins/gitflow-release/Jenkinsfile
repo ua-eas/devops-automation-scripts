@@ -24,7 +24,16 @@ node ('ec2_java_maven') {
                     {
                         echo "Checkout Rice:"
                         def ReleaseInfo = input message: 'Release Information',
-                            parameters: [string(defaultValue: '7.20170511-ua-release99', description: 'Enter Next Version:', name: 'NEXT_VERSION'), password(defaultValue: '7.20170511-ua-release98', description: 'Enter Current Version:', name: 'CURRENT_VERSION')], submitterParameter: 'approver'
+                            parameters: [
+                                string(
+                                    defaultValue: '7.20170511-ua-release99', 
+                                    description: 'Enter Next Version:', 
+                                    name: 'NEXT_VERSION'), 
+                                string(
+                                    defaultValue: '7.20170511-ua-release98', 
+                                    description: 'Enter Current Version:', 
+                                    name: 'CURRENT_VERSION')], 
+                            submitterParameter: 'approver'
                         echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
                         echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
                         echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
