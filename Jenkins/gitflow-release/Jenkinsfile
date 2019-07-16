@@ -23,7 +23,7 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         echo "Checkout Rice:"
-                        def ReleaseInfo = input message: 'Release Information',
+                        def env.ReleaseInfo = input message: 'Release Information',
                             parameters: [
                                 string(
                                     defaultValue: '7.20170511-ua-release99', 
@@ -34,10 +34,10 @@ node ('ec2_java_maven') {
                                     description: 'Enter Current Version:', 
                                     name: 'CURRENT_VERSION')], 
                             submitterParameter: 'approver'
-                        echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
-                        echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
-                        echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
-                        echo "Answered by " + ReleaseInfo['approver']
+                        echo "NEXT_VERSION = " + env.ReleaseInfo['NEXT_VERSION']
+                        echo "CURRENT_VERSION = ${env.ReleaseInfo['CURRENT_VERSION']}"
+                        echo env.ReleaseInfo.NEXT_VERSION + " " + env.ReleaseInfo.CURRENT_VERSION
+                        echo "Answered by " + env.ReleaseInfo['approver']
                     }
                 }
                 stage ('Create KFS Release Branch')
@@ -57,7 +57,7 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Setting pom release version: $CURRENT_DEV_VERSION"'
                         sh 'git status'
-                        echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
+                        echo "CURRENT_VERSION = ${env.ReleaseInfo['CURRENT_VERSION']}"
                         // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // sh 'git status'
                     }
