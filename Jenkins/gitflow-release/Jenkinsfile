@@ -40,6 +40,7 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Setting pom release version: $CURRENT_DEV_VERSION"'
                         sh 'git status'
+                        // TODO: BUMP DEVELOP VERSION BRANCH
 
                     }
                 }
