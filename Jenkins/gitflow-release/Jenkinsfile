@@ -10,8 +10,8 @@ node ('ec2_java_maven') {
             "RELEASE_TICKET=${env.RELEASE_TICKET}",
             "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
             "RELEASE_PREFIX_KFS=${env.RELEASE_PREFIX_KFS}",
-            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}+${env.RELEASE_VERSION}",
-            "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}+${env.RELEASE_VERSION}",
+            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
+            "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}",
             // Source Control Info
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_MASTER_BRANCH=*/ua-master",
