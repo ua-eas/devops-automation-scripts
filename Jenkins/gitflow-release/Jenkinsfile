@@ -11,6 +11,7 @@ node ('ec2_java_maven') {
             "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
             "RELEASE_PREFIX_KFS=${env.RELEASE_PREFIX_KFS}",
             "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}+${env.RELEASE_VERSION}"
+            "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}+${env.RELEASE_VERSION}"
             // Source Control Info
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_MASTER_BRANCH=*/ua-master",
@@ -25,9 +26,19 @@ node ('ec2_java_maven') {
                     // RCF Adding INFO messages.
                     echo "DBG: JAVA_HOME: $JAVA_HOME"
                     echo "DBG: PATH+MAVEN: $PATH+MAVEN"
-                    echo "DBG: CURRENT_DEV_VERSION: $CURRENT_DEV_VERSION"
-                    echo "DBG: NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                     echo "DBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
+                    echo "DBG: RELEASE_VERSION: $RELEASE_VERSION"
+                    echo "DBG: RELEASE_TICKET: $RELEASE_TICKET"
+                    echo "DBG: RELEASE_PREFIX_RICE: $RELEASE_PREFIX_RICE"
+                    echo "DBG: RELEASE_PREFIX_KFS: $RELEASE_PREFIX_KFS"
+                    echo "DBG: RICE_RELEASE_VERSION: $RICE_RELEASE_VERSION"
+                    echo "DBG: KFS_RELEASE_VERSION: $KFS_RELEASE_VERSION"
+                    echo "DBG: KFS_REPO_URL: $KFS_REPO_URL"
+                    echo "DBG: KFS_MASTER_BRANCH: $KFS_MASTER_BRANCH"
+                    echo "DBG: KFS_DEV_BRANCH: $KFS_DEV_BRANCH"
+                    echo "DBG: RICE_REPO_URL: $RICE_REPO_URL"
+                    echo "DBG: RICE_DEV_BRANCH: $RICE_DEV_BRANCH"
+                    echo "DBG: RICE_MASTER_BRANCH: $RICE_MASTER_BRANCH"
                 }
                 stage ('Create Rice Release Branch')
                 {
