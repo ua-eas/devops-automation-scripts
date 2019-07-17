@@ -46,11 +46,11 @@ node ('ec2_java_maven') {
                     {
                         cleanWs()
                         def intValue = env.RELEASE_VERSION.toInteger()
-                        def myNumber = intValue
-                        def myIncre = myNumber++
+                        def myNumber = ++intValue
+                        
                         echo"intValue: " + intValue
                         echo"myNumber: " + myNumber
-                        echo"myIncre: " + myIncre
+                        
 
 
                         //def intValueRelease = env.RELEASE_VERSION.isInteger() ? env.RELEASE_VERSION.toInteger() : null
