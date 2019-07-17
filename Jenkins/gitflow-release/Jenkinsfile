@@ -7,11 +7,13 @@ node ('ec2_java_maven') {
             "CURRENT_DEV_VERSION=${env.CURRENT_DEV_VERSION}",
             "NEXT_DEV_VERSION=${env.NEXT_DEV_VERSION}",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}",
-            "KFS_BRANCH=*/ua-development",
-            "KFS_URL=https://github.com/ua-eas/financials.git",
-            "RICE_BRANCH=*/rice-2.6-ua-development",
-            "RICE_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
-            "RELEASE_TICKET="
+            "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
+            "KFS_MASTER_BRANCH=*/ua-master",
+            "KFS_DEV_BRANCH=*/ua-development",
+            "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
+            "RICE_DEV_BRANCH=*/rice-2.6-ua-development",
+            "RICE_MASTER_BRANCH=*/rice-2.6-ua-master"
+            "RELEASE_TICKET=FIN-832"
             ]) 
             {
                 stage ('Info')
@@ -28,8 +30,9 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        echo "Checkout Rice:"
-                        checkout([$class: 'GitSCM', branches: [[name: env.RICE_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_URL]]])
+                        echo "Checkout repo: " + env.RICE_REPO_URL
+                        echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
+                        checkout([$class: 'GitSCM', branches: [[name: env.RICE_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
@@ -49,9 +52,9 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        echo "KFS_Branch: " + env.KFS_BRANCH
-                        echo "KFS_URL: " + env.KFS_URL
-                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_URL]]])
+                        echo "Checkout repo: " + env.KFS_REPO_URL
+                        echo "Checkout KFS Branch: " + env.KFS_DEV_BRANCH
+                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
