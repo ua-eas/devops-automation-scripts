@@ -70,7 +70,7 @@ node ('ec2_java_maven') {
                         ++Integer_Value
                         def NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
                     }
                 }
                 stage ('Create KFS Release Branch')
