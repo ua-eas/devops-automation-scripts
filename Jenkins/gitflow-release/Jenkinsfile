@@ -12,7 +12,7 @@ node ('ec2_java_maven') {
             "KFS_DEV_BRANCH=*/ua-development",
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
             "RICE_DEV_BRANCH=*/rice-2.6-ua-development",
-            "RICE_MASTER_BRANCH=*/rice-2.6-ua-master"
+            "RICE_MASTER_BRANCH=*/rice-2.6-ua-master",
             "RELEASE_TICKET=FIN-832"
             ]) 
             {
