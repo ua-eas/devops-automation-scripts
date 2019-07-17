@@ -45,6 +45,10 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
+                        //def intValueRelease = $RELEASE_VERSION.toInteger()
+                        def intValueRelease = $RELEASE_VERSION.isInteger() ? $RELEASE_VERSION.toInteger() : null
+                        echo "intValueRelease: $intValueRelease"
+
                         echo "Checkout repo: " + env.RICE_REPO_URL
                         echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
                         echo "Will be using RICE_RELEASE_VERSION: " + env.RICE_RELEASE_VERSION
@@ -66,6 +70,7 @@ node ('ec2_java_maven') {
                         sh "git checkout rice-2.6-ua-development"
                         sh 'git status'
                         sh 'git branch'
+
 
                     }
                 }
