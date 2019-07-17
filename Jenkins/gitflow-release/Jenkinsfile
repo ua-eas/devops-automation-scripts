@@ -61,6 +61,10 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         //sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // TODO: BUMP DEVELOP VERSION BRANCH
+                        sh 'git branch'
+                        sh "git checkout $RICE_DEV_BRANCH"
+                        sh 'git status'
+                        sh 'git branch'
 
                     }
                 }
