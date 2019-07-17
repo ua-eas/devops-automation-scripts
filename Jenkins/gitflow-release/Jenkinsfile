@@ -48,12 +48,13 @@ node ('ec2_java_maven') {
                         echo "Checkout repo: " + env.RICE_REPO_URL
                         echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
                         echo "Will be using RICE_RELEASE_VERSION: " + env.RICE_RELEASE_VERSION
+                        echo "or also RCF-$RICE_RELEASE_VERSION"
                         //checkout([$class: 'GitSCM', branches: [[name: env.RICE_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
                         //sh "git config user.name $GIT_USERNAME"
                         //sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         //sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         // TRY CATCH
-                        //sh "git checkout -b RCF-$NEXT_DEV_VERSION"
+                        //sh "git checkout -b RCF-$RICE_RELEASE_VERSION"
                         //sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$CURRENT_DEV_VERSION"'
                         //sh 'git add .'
                         //sh 'git status'
