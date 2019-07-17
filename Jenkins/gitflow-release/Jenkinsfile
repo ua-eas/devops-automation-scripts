@@ -46,7 +46,7 @@ node ('ec2_java_maven') {
                     {
                         cleanWs()
                         //def intValueRelease = $RELEASE_VERSION.toInteger()
-                        def intValueRelease = $RELEASE_VERSION.isInteger() ? $RELEASE_VERSION.toInteger() : null
+                        def intValueRelease = env.RELEASE_VERSION.isInteger() ? env.RELEASE_VERSION.toInteger() : null
                         echo "intValueRelease: $intValueRelease"
 
                         echo "Checkout repo: " + env.RICE_REPO_URL
