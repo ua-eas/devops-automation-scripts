@@ -68,7 +68,7 @@ node ('ec2_java_maven') {
                         sh 'git branch'
                         def Integer_Value = env.RELEASE_VERSION.toInteger()
                         ++Integer_Value
-                        def NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}" //$Integer_Value + "-SNAPSHOT"
+                        env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                         echo"RICE_RELEASE_VERSION: $RICE_RELEASE_VERSION"
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
