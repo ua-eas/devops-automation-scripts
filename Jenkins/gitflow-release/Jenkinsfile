@@ -47,9 +47,11 @@ node ('ec2_java_maven') {
                         cleanWs()
                         def intValue = env.RELEASE_VERSION.toInteger()
                         def myNumber = 99
+                        def myIncre = myNumber++
                         echo"intValue: " + intValue
                         echo"intValue incremented: " + (intValue++)
-                        echo"myNumber: " + (myNumber++)
+                        echo"myNumber: " + myNumber
+                        echo"myIncre: " + myIncre
 
 
                         //def intValueRelease = env.RELEASE_VERSION.isInteger() ? env.RELEASE_VERSION.toInteger() : null
