@@ -45,9 +45,12 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        //def intValueRelease = $RELEASE_VERSION.toInteger()
-                        def intValueRelease = env.RELEASE_VERSION.isInteger() ? env.RELEASE_VERSION.toInteger() : null
-                        echo "intValueRelease: $intValueRelease"
+                        def intValue = env.RELEASE_VERSION
+                        echo"intValue: " + intValue
+                        
+
+                        //def intValueRelease = env.RELEASE_VERSION.isInteger() ? env.RELEASE_VERSION.toInteger() : null
+                        //echo "intValueRelease: $intValueRelease"
 
                         echo "Checkout repo: " + env.RICE_REPO_URL
                         echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
