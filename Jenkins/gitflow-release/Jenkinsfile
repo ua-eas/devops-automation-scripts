@@ -45,9 +45,9 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         cleanWs()
-                        def intValue = ++(env.RELEASE_VERSION.toInteger())
-                        // ++intValue
-                        echo"intValue: " + intValue
+                        def NEXT_RELEASE_VERSION = env.RELEASE_VERSION.toInteger()
+                        ++NEXT_RELEASE_VERSION
+                        echo"NEXT_RELEASE_VERSION: " + NEXT_RELEASE_VERSION
                         
                         
 
