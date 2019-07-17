@@ -49,7 +49,6 @@ node ('ec2_java_maven') {
                         def myNumber = 99
                         def myIncre = myNumber++
                         echo"intValue: " + intValue
-                        echo"intValue incremented: " + (intValue++)
                         echo"myNumber: " + myNumber
                         echo"myIncre: " + myIncre
 
