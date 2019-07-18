@@ -105,17 +105,14 @@ node ('ec2_java_maven') {
                             parameters: 
                                 [
                                     string(
-                                        defaultValue: '7.20170511-ua-release99',
-                                        description: 'Enter Next Version:',
-                                        name: 'NEXT_VERSION'),
-                                    string(
-                                        defaultValue: '7.20170511-ua-release98',
-                                        description: 'Enter Current Version:',
-                                        name: 'CURRENT_VERSION')
+                                        defaultValue: env.NEXT_DEV_VERSION,
+                                        description: 'Verify Next Version:',
+                                        name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
                         echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
-                        echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
+                        echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
+                        //echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
                         echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
 
