@@ -84,7 +84,7 @@ node ('ec2_java_maven') {
                         sh 'git add .'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
                         sh 'git status'
-                        //sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
+                        sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
                         //// END: sh "git push -u origin RCF-$RICE_RELEASE_VERSION"
                         //// TODO: BUMP DEVELOP VERSION BRANCH
                         //sh 'git branch'
