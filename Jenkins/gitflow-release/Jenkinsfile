@@ -80,7 +80,7 @@ node ('ec2_java_maven') {
                             } 
                         }
                         // This truncates the '-SNAPSHOT' version from develop
-                        // -------------->   REMOVE AFTER TESTING sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
                         sh 'git add .'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
                         sh 'git status'
@@ -117,7 +117,7 @@ node ('ec2_java_maven') {
                         // End Verify
 
 
-                        // -------------->   REMOVE AFTER TESTING sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git add .'
                         sh 'git status'
                         sh 'git diff'
@@ -145,6 +145,7 @@ node ('ec2_java_maven') {
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         echo ""
 
+
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'Verify Rice Dependency Version',
                             parameters: 
@@ -162,7 +163,6 @@ node ('ec2_java_maven') {
                         
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git diff'
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
