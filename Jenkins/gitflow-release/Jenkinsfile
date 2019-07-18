@@ -171,10 +171,7 @@ node ('ec2_java_maven') {
                 }
                 stage ('Bump Rice Dev version')
                 {
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        
-                    }
+                    
 
                 }
 
