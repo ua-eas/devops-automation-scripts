@@ -99,7 +99,7 @@ node ('ec2_java_maven') {
                         
                         
                         
-                        
+                        /*
                         // Verify with user $NEXT_DEV_VERSION before proceeding
                         def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
@@ -115,6 +115,7 @@ node ('ec2_java_maven') {
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
+                        */
 
 
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
@@ -145,7 +146,7 @@ node ('ec2_java_maven') {
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         echo ""
 
-
+                        /*
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'Verify Rice Dependency Version',
                             parameters: 
@@ -160,6 +161,7 @@ node ('ec2_java_maven') {
                         echo "RICE_RELEASE_VERSION= " + env.RICE_RELEASE_VERSION
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
+                        */
                         
                         sh 'git add .'
                         sh 'git status'
@@ -168,6 +170,24 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
                         // sh 'git status'
+                    }
+                }
+                stage ('Stage 33')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+
+                                                
+
+                    }
+                }
+                stage ('Stage 44 ')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+
+                                                
+
                     }
                 }
                 stage ('Create KFS Release Branch')
