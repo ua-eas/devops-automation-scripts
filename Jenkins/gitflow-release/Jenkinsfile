@@ -106,7 +106,7 @@ node ('ec2_java_maven') {
                                 [
                                     string(
                                         defaultValue: env.NEXT_DEV_VERSION,
-                                        //description: 'Verify Next Version:',
+                                        description: ' ',
                                         name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
@@ -144,7 +144,7 @@ node ('ec2_java_maven') {
                                 [
                                     string(
                                         defaultValue: env.RICE_RELEASE_VERSION,
-                                        description: 'Verify Rice Dependency Version:',
+                                        description: ' ',
                                         name: 'DEP_VERSION')
                                 ],
                             submitterParameter: 'approver'
