@@ -116,7 +116,7 @@ node ('ec2_java_maven') {
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
 
-                        
+
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git add .'
                         sh 'git status'
@@ -137,6 +137,23 @@ node ('ec2_java_maven') {
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                        
+                        // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
+                        def DepInfo = input message: 'Verify Rice Dependency Version',
+                            parameters: 
+                                [
+                                    string(
+                                        defaultValue: env.RICE_RELEASE_VERSION,
+                                        description: 'Verify Rice Dependency Version:',
+                                        name: 'DEP_VERSION')
+                                ],
+                            submitterParameter: 'approver'
+                        env.RICE_RELEASE_VERSION=DepInfo['DEP_VERSION']
+                        echo "RICE_RELEASE_VERSION= " + env.RICE_RELEASE_VERSION
+                        echo "Answered by " + DepInfo['approver']
+                        // End Verify
+
+                        
                         // This will work as long as we use newer versions-maven-plugin v2.5
                         sh 'mvn versions:set-property -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
                         sh 'git diff'
