@@ -125,12 +125,8 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         // STILL REQUIRES TESTING
                         // END sh 'git push'
-                    }
-                }
-                stage ('Bump Rice Dev Version')
-                {
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
+
+
                         // Update the version of the Rice dependency in the KFS dev project to be the new release version.
                         // push to publish
                         cleanWs()
@@ -171,8 +167,13 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
                         // sh 'git status'
-
-
+                    }
+                }
+                stage ('Bump Rice Dev version')
+                {
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        
                     }
 
                 }
