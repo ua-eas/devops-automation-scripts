@@ -15,7 +15,9 @@ node ('ec2_java_maven') {
             // Source Control Info
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_MASTER_BRANCH=*/ua-master",
-            "KFS_DEV_BRANCH=*/ua-development",
+            // Commenting out and using FIN-958 for testing
+            //"KFS_DEV_BRANCH=*/ua-development",
+            "KFS_DEV_BRANCH=*/FIN-958",
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
             "RICE_DEV_BRANCH=rice-2.6-ua-development",
             "RICE_MASTER_BRANCH=*/rice-2.6-ua-master"
