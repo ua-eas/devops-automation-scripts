@@ -82,7 +82,7 @@ node ('ec2_java_maven') {
                 {        
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
-                        cleanWs()
+                        //cleanWs()
                         echo "Checkout repo: " + env.KFS_REPO_URL
                         echo "Checkout KFS Branch: " + env.KFS_DEV_BRANCH
                         checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
