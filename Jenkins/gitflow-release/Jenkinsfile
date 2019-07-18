@@ -96,7 +96,31 @@ node ('ec2_java_maven') {
                         ++Integer_Value
                         env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                        // TODO Maybe add prompt if we want to continue to be sure here.
+                        
+                        
+                        
+                        
+                        // Verify with user $NEXT_DEV_VERSION before proceeding
+                        def ReleaseInfo = input message: 'Verify next development version',
+                            parameters: 
+                                [
+                                    string(
+                                        defaultValue: '7.20170511-ua-release99',
+                                        description: 'Enter Next Version:',
+                                        name: 'NEXT_VERSION'),
+                                    string(
+                                        defaultValue: '7.20170511-ua-release98',
+                                        description: 'Enter Current Version:',
+                                        name: 'CURRENT_VERSION')
+                                ],
+                            submitterParameter: 'approver'
+                        echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
+                        echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
+                        echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
+                        echo "Answered by " + ReleaseInfo['approver']
+
+                        
+                        // End Verify
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git add .'
                         sh 'git status'
@@ -126,9 +150,6 @@ node ('ec2_java_maven') {
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
-
-
-                        // sh 'git push -u origin RCF-$NEXT_DEV_VERSION'
                         // sh 'git status'
                     }
                 }
