@@ -89,6 +89,7 @@ node ('ec2_java_maven') {
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                        // This will work as long as we use newer versions-maven-plugin v2.5
                         sh 'mvn versions:set-property -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
                                                 
 
