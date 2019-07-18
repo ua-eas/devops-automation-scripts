@@ -163,19 +163,12 @@ node ('ec2_java_maven') {
                         
                         sh 'git add .'
                         sh 'git status'
+                        sh 'git diff'
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
                         // sh 'git status'
                     }
-                }
-                stage ('Bump Rice Dev version')
-                {
-                    
-
-                }
-
-
                 }
                 stage ('Create KFS Release Branch')
                 {        
