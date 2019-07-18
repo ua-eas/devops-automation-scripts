@@ -128,6 +128,23 @@ node ('ec2_java_maven') {
                         // END sh 'git push'
 
 
+
+                    }
+                }
+                stage ('Bump Dev Branch')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+
+
+                                                
+
+                    }
+                }
+                stage ('Update KFS Dependency')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
                         // Update the version of the Rice dependency in the KFS dev project to be the new release version.
                         // push to publish
                         cleanWs()
@@ -162,7 +179,7 @@ node ('ec2_java_maven') {
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
                         */
-                        
+
                         sh 'git add .'
                         sh 'git status'
                         sh 'git diff'
@@ -170,21 +187,6 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
                         // sh 'git status'
-                    }
-                }
-                stage ('Stage 33')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-
-                                                
-
-                    }
-                }
-                stage ('Stage 44 ')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
 
                                                 
 
