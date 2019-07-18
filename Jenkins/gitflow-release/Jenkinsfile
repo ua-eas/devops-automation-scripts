@@ -101,12 +101,12 @@ node ('ec2_java_maven') {
                         
                         
                         // Verify with user $NEXT_DEV_VERSION before proceeding
-                        def ReleaseInfo = input message: 'Verify next development version',
+                        def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
                                 [
                                     string(
                                         defaultValue: env.NEXT_DEV_VERSION,
-                                        description: 'Verify Next Version:',
+                                        //description: 'Verify Next Version:',
                                         name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
@@ -153,7 +153,7 @@ node ('ec2_java_maven') {
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
 
-                        
+
                         // This will work as long as we use newer versions-maven-plugin v2.5
                         sh 'mvn versions:set-property -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
                         sh 'git diff'
