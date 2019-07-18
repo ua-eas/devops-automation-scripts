@@ -228,6 +228,51 @@ node ('ec2_java_maven') {
                         // sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
                     }
                 }
+                stage ('Bump KFS Dev Branch')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        // Bump KFS development branch version for next release.
+                        sh 'git branch'
+                        sh "git checkout $KFS_DEV_BRANCH"
+                        sh 'git branch'
+                        def Integer_Value = env.RELEASE_VERSION.toInteger()
+                        ++Integer_Value
+                        env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
+                        echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
+                        
+                        
+                        
+                        /*
+                        // Verify with user $NEXT_DEV_VERSION before proceeding
+                        def ReleaseInfo = input message: 'Verify Next Development Version',
+                            parameters: 
+                                [
+                                    string(
+                                        defaultValue: env.NEXT_DEV_VERSION,
+                                        description: ' ',
+                                        name: 'NEXT_VERSION')
+                                ],
+                            submitterParameter: 'approver'
+                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']
+                        //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
+                        echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
+                        echo "Answered by " + ReleaseInfo['approver']
+                        // End Verify
+                        */
+
+
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'git add .'
+                        sh 'git status'
+                        sh 'git diff'
+                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
+                        sh 'git status'
+                        // STILL REQUIRES TESTING
+                        // END sh 'git push'
+
+                    }
+                }
             }        
     }
 }
