@@ -110,14 +110,13 @@ node ('ec2_java_maven') {
                                         name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
-                        echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
+                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']
+                        //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
-                        //echo "CURRENT_VERSION = ${ReleaseInfo['CURRENT_VERSION']}"
-                        echo ReleaseInfo.NEXT_VERSION + " " + ReleaseInfo.CURRENT_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
+                        // End Verify
 
                         
-                        // End Verify
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git add .'
                         sh 'git status'
