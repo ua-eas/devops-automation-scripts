@@ -14,13 +14,14 @@ node ('ec2_java_maven') {
             "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}",
             // Source Control Info
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
-            "KFS_MASTER_BRANCH=*/ua-master",
+            "KFS_MASTER_BRANCH=-rcf-ua-master",
             // Commenting out and using FIN-958 for testing
             //"KFS_DEV_BRANCH=*/ua-development",
-            "KFS_DEV_BRANCH=FIN-958",
+            //"KFS_DEV_BRANCH=FIN-958",
+            "KFS_DEV_BRANCH=rcf-ua-development",
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
-            "RICE_DEV_BRANCH=rice-2.6-ua-development",
-            "RICE_MASTER_BRANCH=*/rice-2.6-ua-master"
+            "RICE_DEV_BRANCH=rcf-rice-2.6-ua-development",
+            "RICE_MASTER_BRANCH=rcf-rice-2.6-ua-master"
             ]) 
             {
                 stage ('Info')
@@ -154,7 +155,7 @@ node ('ec2_java_maven') {
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         echo ""
 
-                        /*
+                        
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'Verify Rice Dependency Version',
                             parameters: 
@@ -169,7 +170,7 @@ node ('ec2_java_maven') {
                         echo "RICE_RELEASE_VERSION= " + env.RICE_RELEASE_VERSION
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
-                        */
+                        
 
                         sh 'git add .'
                         sh 'git status'
