@@ -122,9 +122,9 @@ node ('ec2_java_maven') {
 
 
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'git diff'
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git diff'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
                         sh 'git status'
                         // STILL REQUIRES TESTING
@@ -173,7 +173,6 @@ node ('ec2_java_maven') {
 
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git diff'
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
@@ -263,9 +262,9 @@ node ('ec2_java_maven') {
 
 
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'git diff'
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git diff'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
                         sh 'git status'
                         // STILL REQUIRES TESTING
