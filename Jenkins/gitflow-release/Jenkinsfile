@@ -43,6 +43,13 @@ node ('ec2_java_maven') {
                     echo "DBG: RICE_DEV_BRANCH: $RICE_DEV_BRANCH"
                     echo "DBG: RICE_MASTER_BRANCH: $RICE_MASTER_BRANCH"
                 }
+                stage ('Build Rice')
+                {   
+                    echo "Building Rice ..."
+                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
+
+                }
+
                 stage ('Create Rice Release Branch')
                 {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -157,7 +164,7 @@ node ('ec2_java_maven') {
 
                         
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
-                        def DepInfo = input message: 'Verify Rice Dependency Version',
+                        def DepInfo = input message: 'Verify Rice Dependency Version does not include -SNAPSHOT',
                             parameters: 
                                 [
                                     string(
@@ -272,6 +279,11 @@ node ('ec2_java_maven') {
                         // END sh 'git push'
 
                     }
+                }
+
+                stage ('Build KFS')
+                {
+
                 }
             }        
     }
