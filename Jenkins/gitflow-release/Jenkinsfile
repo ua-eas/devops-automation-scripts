@@ -5,17 +5,27 @@ node ('ec2_java_maven') {
             "JAVA_HOME=${tool 'oracle-jdk-8'}",
             "PATH+MAVEN=${tool 'maven-3.3.9'}/bin:${env.JAVA_HOME}/bin",
             "MVN_SETTINGS_XML=${env.MVN_SETTINGS_XML}",
-            // Versioning Info
-            "RELEASE_VERSION=${env.RELEASE_VERSION}",
+            
+            // Jira release ticket for commit messaging.
             "RELEASE_TICKET=${env.RELEASE_TICKET}",
-            "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
+            
+            // Versioning Info for both KFS and Rice, i.e. 52 for release 52.
+            "RELEASE_VERSION=${env.RELEASE_VERSION}",
+            
+            // KFS release version info.
             "RELEASE_PREFIX_KFS=${env.RELEASE_PREFIX_KFS}",
-            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
             "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}",
+
+            // Rice release version info.
+            "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
+            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
+        
             // Source Control Info
+            // KFS
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_MASTER_BRANCH=-rcf-ua-master",
             "KFS_DEV_BRANCH=rcf-ua-development",
+            // Rice
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
             "RICE_DEV_BRANCH=rcf-rice-2.6-ua-development",
             "RICE_MASTER_BRANCH=rcf-rice-2.6-ua-master"
@@ -43,10 +53,16 @@ node ('ec2_java_maven') {
                 stage ('Build Rice')
                 {   
                     echo "Building Rice ..."
+                    // NOTE:  Parameters here will be used for the job as expected.
                     build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
                 }
+                stage ('Build KFS')
+                {
+                    echo "Building KFS ..."
 
+
+                }
                 stage ('Create Rice Release Branch')
                 {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -277,11 +293,15 @@ node ('ec2_java_maven') {
 
                     }
                 }
-
-                stage ('Build KFS')
+                stage ('Rice Release Finish')
                 {
+                    // Merge Rel branch to Master
+                    // Merge Rel branch to Develop
+
 
                 }
+
+
             }        
     }
 }
