@@ -50,19 +50,7 @@ node ('ec2_java_maven') {
                     echo "DBG: RICE_DEV_BRANCH: $RICE_DEV_BRANCH"
                     echo "DBG: RICE_MASTER_BRANCH: $RICE_MASTER_BRANCH"
                 }
-                stage ('Build Rice')
-                {   
-                    echo "Building Rice ..."
-                    // NOTE:  Parameters here will be used for the job as expected.
-                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
-                }
-                stage ('Build KFS')
-                {
-                    echo "Building KFS ..."
-
-
-                }
                 stage ('Create Rice Release Branch')
                 {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -296,12 +284,38 @@ node ('ec2_java_maven') {
                 stage ('Rice Release Finish')
                 {
                     // Merge Rel branch to Master
-                    // Merge Rel branch to Develop
+                    sh "git checkout RCF-$RICE_RELEASE_VERSION"
+                    sh "git pull"
+                    sh "git checkout $RICE_MASTER_BRANCH"
+                    sh "git pull"
+                    //sh "git merge RCF-$RICE_RELEASE_VERSION"
+                    //sh "git add ."
+                    //sh 'git commit -m "RCF-Jenkins: Merging release: $RICE_RELEASE_VERSION"'
+                    // sh "git push"
+
+
+                    // Tag Master post merge
+
+
+                     // Merge Rel branch to Develop
+
 
 
                 }
 
+                stage ('Build Rice')
+                {   
+                    echo "Building Rice ..."
+                    // NOTE:  Parameters here will be used for the job as expected.
+                    //build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
+                }
+                stage ('Build KFS')
+                {
+                    echo "Building KFS ..."
+
+
+                }
             }        
     }
 }
