@@ -33,7 +33,7 @@ node ('ec2_java_maven') {
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_DEV_BRANCH=rcf-ua-development",
             "KFS_MASTER_BRANCH=-rcf-ua-master",
-            "KFS_RELEASE_BRANCH=RCF-${env.KFS_RELEASE_VERSION}"
+            "KFS_RELEASE_BRANCH=RCF-${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}"
             ]) 
             {
                 // Print out variables.
