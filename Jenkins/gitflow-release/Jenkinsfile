@@ -1,3 +1,4 @@
+
 node ('ec2_java_maven') {
     withCredentials([file(credentialsId: '6ad0a02e-19c2-4824-bb25-3c751a383d10', variable: 'MVN_SETTINGS_XML')]) {
     
@@ -11,26 +12,31 @@ node ('ec2_java_maven') {
             
             // Versioning Info for both KFS and Rice, i.e. 52 for release 52.
             "RELEASE_VERSION=${env.RELEASE_VERSION}",
-            
-            // KFS release version info.
+
+             // Rice release version info, prefix i.e 2.6.0-ua-release
+            "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
+            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",           
+
+            // KFS release version info , prefix i.e 7.20170511-ua-release
             "RELEASE_PREFIX_KFS=${env.RELEASE_PREFIX_KFS}",
             "KFS_RELEASE_VERSION=${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}",
 
-            // Rice release version info.
-            "RELEASE_PREFIX_RICE=${env.RELEASE_PREFIX_RICE}",
-            "RICE_RELEASE_VERSION=${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
-        
-            // Source Control Info
-            // KFS
-            "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
-            "KFS_MASTER_BRANCH=-rcf-ua-master",
-            "KFS_DEV_BRANCH=rcf-ua-development",
+            // TODO: REMOVE RCF BEING USED FOR DEBUG/TESTING
+            // Source Control Info  
             // Rice
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
             "RICE_DEV_BRANCH=rcf-rice-2.6-ua-development",
-            "RICE_MASTER_BRANCH=rcf-rice-2.6-ua-master"
+            "RICE_MASTER_BRANCH=rcf-rice-2.6-ua-master",
+            "RICE_RELEASE_BRANCH=RCF-$RICE_RELEASE_VERSION"
+
+            // KFS
+            "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
+            "KFS_DEV_BRANCH=rcf-ua-development",
+            "KFS_MASTER_BRANCH=-rcf-ua-master",
+            "KFS_RELEASE_BRANCH=RCF-$KFS_RELEASE_VERSION"
             ]) 
             {
+                // Print out variables.
                 stage ('Info')
                 {
                     // RCF Adding INFO messages.
@@ -65,7 +71,7 @@ node ('ec2_java_maven') {
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         // Create new release branch and update POM's.
                         try {
-                            sh "git checkout -b RCF-$RICE_RELEASE_VERSION"
+                            sh "git checkout -b $RICE_RELEASE_BRANCH"
                         }
                         catch (Exception e) {
                             echo "EXCP:CAUGHT: trying to checkout RCF-$RICE_RELEASE_VERSION"
@@ -205,7 +211,7 @@ node ('ec2_java_maven') {
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         // Create new release branch and update POM's.
                         try {
-                            sh "git checkout -b RCF-$KFS_RELEASE_VERSION"
+                            sh "git checkout -b $KFS_RELEASE_BRANCH"
                         }
                         catch (Exception e) {
                             echo "EXCP:CAUGHT: trying to checkout RCF-$KFS_RELEASE_VERSION"
@@ -281,16 +287,18 @@ node ('ec2_java_maven') {
 
                     }
                 }
-                stage ('Rice Release Finish')
+                stage ('Merge Rice Release Finish')
                 {
                     // Merge Rel branch to Master
-                    sh "git checkout RCF-$RICE_RELEASE_VERSION"
-                    sh "git pull"
-                    sh "git checkout $RICE_MASTER_BRANCH"
-                    sh "git pull"
-                    //sh "git merge RCF-$RICE_RELEASE_VERSION"
+                    //cleanWs()
+                    //checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                    //sh "git pull"  
+                    //sh "git checkout $RICE_MASTER_BRANCH"
+                    //sh "git pull"
+                    //sh "git merge $RICE_RELEASE_BRANCH"
+                    //sh "git diff"
                     //sh "git add ."
-                    //sh 'git commit -m "RCF-Jenkins: Merging release: $RICE_RELEASE_VERSION"'
+                    //sh 'git commit -m "RCF-Jenkins: Merging to master release: $RICE_RELEASE_VERSION"'
                     // sh "git push"
 
 
