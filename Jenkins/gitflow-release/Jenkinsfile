@@ -62,7 +62,6 @@ node ('ec2_java_maven') {
                         cleanWs()                      
                         echo "Checkout repo: " + env.RICE_REPO_URL
                         echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
-                        echo "Will be using RICE_RELEASE_VERSION: " + env.RICE_RELEASE_VERSION
                         checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
                         sh "git config user.name $GIT_USERNAME"
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
@@ -98,6 +97,7 @@ node ('ec2_java_maven') {
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
                         sh 'git status'
                         // sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
+                        sh 'set'
                     }
                 }
                 stage ('Bump Rice Dev Branch')
