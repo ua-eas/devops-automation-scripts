@@ -130,10 +130,10 @@ node ('ec2_java_maven') {
                         
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git diff'
-                        sh 'git add .'
-                        sh 'git status'
-                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
-                        sh 'git status'
+                        //sh 'git add .'
+                        //sh 'git status'
+                        //sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
+                        //sh 'git status'
                         //sh 'git push'
                     }
                 }
