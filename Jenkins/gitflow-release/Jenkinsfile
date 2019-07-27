@@ -276,7 +276,7 @@ node ('ec2_java_maven') {
                     //sh 'git pull'  
                     sh "git checkout $RICE_MASTER_BRANCH"
                     sh 'git pull'
-                    sh "git merge $RICE_RELEASE_BRANCH"
+                    sh "git merge origin/$RICE_RELEASE_BRANCH"
                     sh 'git diff'
                     sh 'git add .'
                     sh 'git commit -m "RCF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
