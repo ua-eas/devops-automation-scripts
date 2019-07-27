@@ -96,7 +96,7 @@ node ('ec2_java_maven') {
                         sh 'git add .'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
                         sh 'git status'
-                        // sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
+                        sh "git push --set-upstream origin $RICE_RELEASE_BRANCH"
                         sh 'set'
                     }
                 }
@@ -105,17 +105,13 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         // Bump rice development branch version for next release.
-                        sh 'git branch'
                         sh "git checkout $RICE_DEV_BRANCH"
-                        sh 'git branch'
                         def Integer_Value = env.RELEASE_VERSION.toInteger()
                         ++Integer_Value
                         env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                         
-                        
-                        
-                        /*
+                                               
                         // Verify with user $NEXT_DEV_VERSION before proceeding
                         def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
@@ -126,23 +122,19 @@ node ('ec2_java_maven') {
                                         name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
-                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']
+                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']  // User may have entered corrected value so we re-initialize.
                         //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
-                        */
-
-
+                        
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                         sh 'git diff'
                         sh 'git add .'
                         sh 'git status'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
                         sh 'git status'
-                        // STILL REQUIRES TESTING
-                        // END sh 'git push'
-
+                        sh 'git push'
                     }
                 }
                 stage ('Update Rice Dependency')
@@ -167,7 +159,7 @@ node ('ec2_java_maven') {
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         echo ""
 
-                        
+                        /*
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'Verify Rice Dependency Version does not include -SNAPSHOT',
                             parameters: 
@@ -182,17 +174,14 @@ node ('ec2_java_maven') {
                         echo "RICE_RELEASE_VERSION= " + env.RICE_RELEASE_VERSION
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
-                        
+                        */
 
                         sh 'git add .'
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
-                        // sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
-                        // sh 'git status'
-
-                                                
-
+                        //sh "git push --set-upstream origin RCF-$KFS_DEV_BRANCH"
+                        //sh 'git status'
                     }
                 }
                 stage ('Create KFS Release Branch')
@@ -237,7 +226,7 @@ node ('ec2_java_maven') {
                         sh 'git add .'
                         sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $KFS_RELEASE_VERSION"'
                         sh 'git status'
-                        // sh "git push --set-upstream origin RCF-$RICE_RELEASE_VERSION"
+                        //sh "git push --set-upstream origin $KFS_RELEASE_BRANCH"
                     }
                 }
                 stage ('Bump KFS Dev Branch')
@@ -245,15 +234,11 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         // Bump KFS development branch version for next release.
-                        sh 'git branch'
                         sh "git checkout $KFS_DEV_BRANCH"
-                        sh 'git branch'
                         def Integer_Value = env.RELEASE_VERSION.toInteger()
                         ++Integer_Value
-                        env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
-                        echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                        
-                        
+                        env.NEXT_DEV_VERSION_KFS="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
+                        echo"NEXT_DEV_VERSION_KFS: $NEXT_DEV_VERSION_KFS"
                         
                         /*
                         // Verify with user $NEXT_DEV_VERSION before proceeding
@@ -261,59 +246,73 @@ node ('ec2_java_maven') {
                             parameters: 
                                 [
                                     string(
-                                        defaultValue: env.NEXT_DEV_VERSION,
+                                        defaultValue: env.NEXT_DEV_VERSION_KFS,
                                         description: ' ',
                                         name: 'NEXT_VERSION')
                                 ],
                             submitterParameter: 'approver'
-                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']
+                        env.NEXT_DEV_VERSION_KFS=ReleaseInfo['NEXT_VERSION'] // User may have entered corrected value so we re-initialize.
                         //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
-                        echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
+                        echo "NEXT_DEV_VERSION_KFS= " + env.NEXT_DEV_VERSION_KFS
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
                         */
 
-
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION_KFS"'
                         sh 'git diff'
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
+                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION_KFS"'
                         sh 'git status'
-                        // STILL REQUIRES TESTING
-                        // END sh 'git push'
-
+                        //sh 'git push'
                     }
                 }
                 stage ('Merge Rice Release Finish')
                 {
                     // Merge Rel branch to Master
-                    //cleanWs()
-                    //checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
-                    //sh "git pull"  
-                    //sh "git checkout $RICE_MASTER_BRANCH"
-                    //sh "git pull"
-                    //sh "git merge $RICE_RELEASE_BRANCH"
-                    //sh "git diff"
-                    //sh "git add ."
-                    //sh 'git commit -m "RCF-Jenkins: Merging to master release: $RICE_RELEASE_VERSION"'
-                    // sh "git push"
+                    cleanWs()
+                    sh 'set'
+                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                    sh 'git pull'  
+                    sh "git checkout $RICE_MASTER_BRANCH"
+                    sh 'git pull'
+                    sh "git merge $RICE_RELEASE_BRANCH"
+                    sh 'git diff'
+                    sh 'git add .'
+                    sh 'git commit -m "RCF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
+                    sh 'git push'
 
 
                     // Tag Master post merge
+                    sh "git checkout $RICE_MASTER_BRANCH"
+                    sh 'git pull'
+                    sh 'git tag -a "$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
+                    sh 'git push --tags'
 
 
                      // Merge Rel branch to Develop
+                     // Hack so that merging release branch in won't cause pom conflicts
+                     sh "git checkout $RICE_RELEASE_BRANCH"
+                     sh 'git pulll'
+                     sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION-SNAPSHOT"'
+                     sh 'git add .'
+                     sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
+                     sh 'git push'
+                     sh "git checkout $RICE_DEV_BRANCH"
+                     sh 'git pull'
+                     sh "git merge --no-edit $RICE_RELEASE_BRANCH"
+                     sh 'git push'
 
-
-
+                     // Delete Release Branch???
+                     //"git push -d origin $RICE_RELEASE_BRANCH"
+                     //"git branch -D $RICE_RELEASE_BRANCH"
                 }
 
                 stage ('Build Rice')
                 {   
                     echo "Building Rice ..."
                     // NOTE:  Parameters here will be used for the job as expected.
-                    //build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
+                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
                 }
                 stage ('Build KFS')
@@ -322,6 +321,7 @@ node ('ec2_java_maven') {
 
 
                 }
+
             }        
     }
 }
