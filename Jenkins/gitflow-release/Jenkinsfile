@@ -307,7 +307,7 @@ node ('ec2_java_maven') {
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION-SNAPSHOT"'
                         sh 'git add .'
                         sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                        sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
+                        //sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
                         sh "git checkout $RICE_DEV_BRANCH"
                         sh 'git pull'
                         sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
