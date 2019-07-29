@@ -290,7 +290,7 @@ node ('ec2_java_maven') {
                         // Tag Master post merge
                         //sh "git checkout $RICE_MASTER_BRANCH"
                         //sh 'git pull'
-                        sh 'git tag -a "$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
+                        sh 'git tag -a "RCF-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
                         sh 'git push --tags'
 
 
