@@ -268,43 +268,47 @@ node ('ec2_java_maven') {
                 }
                 stage ('Merge Rice Release Finish')
                 {
-                    // Merge Rel branch to Master
-                    cleanWs()
-                    sh 'set'
-                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
-                    //sh 'git pull'  
-                    sh "git checkout $RICE_MASTER_BRANCH"
-                    sh 'git pull'
-                    sh "git merge origin/$RICE_RELEASE_BRANCH"
-                    sh 'git status'
-                    //sh 'git add .'
-                    //sh 'git commit -m "RCF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
-                    sh 'git push'
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        // Merge Rel branch to Master
+                        cleanWs()
+                        sh 'set'
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                    
+                        //sh 'git pull'  
+                        sh "git checkout $RICE_MASTER_BRANCH"
+                        sh 'git pull'
+                        sh "git merge origin/$RICE_RELEASE_BRANCH"
+                        sh 'git status'
+                        //sh 'git add .'
+                        //sh 'git commit -m "RCF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
+                        sh 'git push'
+
+                        // Tag Master post merge
+                        //sh "git checkout $RICE_MASTER_BRANCH"
+                        //sh 'git pull'
+                        sh 'git tag -a "$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
+                        sh 'git push --tags'
 
 
-                    // Tag Master post merge
-                    //sh "git checkout $RICE_MASTER_BRANCH"
-                    //sh 'git pull'
-                    sh 'git tag -a "$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
-                    sh 'git push --tags'
+                        // Merge Rel branch to Develop
+                        // Hack so that merging release branch in won't cause pom conflicts
+                        sh "git checkout $RICE_RELEASE_BRANCH"
+                        sh 'git pulll'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION-SNAPSHOT"'
+                        sh 'git add .'
+                        sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
+                        sh 'git push'
+                        sh "git checkout $RICE_DEV_BRANCH"
+                        sh 'git pull'
+                        sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
+                        sh 'git push'
 
+                        // Delete Release Branch???
+                        //"git push -d origin $RICE_RELEASE_BRANCH"
+                        //"git branch -D $RICE_RELEASE_BRANCH"
+                    }
 
-                     // Merge Rel branch to Develop
-                     // Hack so that merging release branch in won't cause pom conflicts
-                     sh "git checkout $RICE_RELEASE_BRANCH"
-                     sh 'git pulll'
-                     sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION-SNAPSHOT"'
-                     sh 'git add .'
-                     sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                     sh 'git push'
-                     sh "git checkout $RICE_DEV_BRANCH"
-                     sh 'git pull'
-                     sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
-                     sh 'git push'
-
-                     // Delete Release Branch???
-                     //"git push -d origin $RICE_RELEASE_BRANCH"
-                     //"git branch -D $RICE_RELEASE_BRANCH"
                 }
 
                 stage ('Build Rice')
