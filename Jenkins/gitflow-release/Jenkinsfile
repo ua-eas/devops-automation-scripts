@@ -296,12 +296,18 @@ node ('ec2_java_maven') {
 
                         // Merge Rel branch to Develop
                         // Hack so that merging release branch in won't cause pom conflicts
-                        sh "git checkout $RICE_RELEASE_BRANCH"
-                        sh 'git pull'
+                        cleanWs()
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                        //sh "git checkout $RICE_RELEASE_BRANCH"
+                        //sh 'git pull'
                         sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION-SNAPSHOT"'
                         sh 'git add .'
                         sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                        sh 'git push'
+                        sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
                         sh "git checkout $RICE_DEV_BRANCH"
                         sh 'git pull'
                         sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
