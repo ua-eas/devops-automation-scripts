@@ -32,7 +32,7 @@ node ('ec2_java_maven') {
             // KFS
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
             "KFS_DEV_BRANCH=rf-ua-development",
-            "KFS_MASTER_BRANCH=-rf-ua-master",
+            "KFS_MASTER_BRANCH=rf-ua-master",
             "KFS_RELEASE_BRANCH=RF-${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}"
             ]) 
             {
