@@ -328,13 +328,13 @@ node ('ec2_java_maven') {
                         sh "git merge origin/$RICE_RELEASE_BRANCH"
                         sh 'git status'
                         //sh 'git add .'
-                        //sh 'git commit -m "RCF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
+                        //sh 'git commit -m "RF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
                         sh 'git push'
 
                         // Tag Master post merge
                         //sh "git checkout $RICE_MASTER_BRANCH"
                         //sh 'git pull'
-                        sh 'git tag -a "RCF-TAG-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
+                        sh 'git tag -a "RF-TAG-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
                         sh 'git push --tags'
 
 
