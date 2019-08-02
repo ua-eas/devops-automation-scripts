@@ -25,9 +25,9 @@ node ('ec2_java_maven') {
             // Source Control Info  
             // Rice
             "RICE_REPO_URL=https://github.com/ua-eas/ksd-kc5.2.1-rice",
-            "RICE_DEV_BRANCH=rcf-rice-2.6-ua-development",
-            "RICE_MASTER_BRANCH=rcf-rice-2.6-ua-master",
-            "RICE_RELEASE_BRANCH=RCF-${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
+            "RICE_DEV_BRANCH=rf-rice-2.6-ua-development",
+            "RICE_MASTER_BRANCH=rf-rice-2.6-ua-master",
+            "RICE_RELEASE_BRANCH=rf-${env.RELEASE_PREFIX_RICE}${env.RELEASE_VERSION}",
 
             // KFS
             "KFS_REPO_URL=https://github.com/ua-eas/financials.git",
@@ -71,7 +71,7 @@ node ('ec2_java_maven') {
                             sh "git checkout -b $RICE_RELEASE_BRANCH"
                         }
                         catch (Exception e) {
-                            echo "EXCP:CAUGHT: trying to checkout RCF-$RICE_RELEASE_VERSION"
+                            echo "EXCP:CAUGHT: trying to checkout $RICE_RELEASE_VERSION"
                             echo "EXC: $e"
                         
                             // Ask user if we continue with release.  Continue or exit.
@@ -91,13 +91,36 @@ node ('ec2_java_maven') {
                                 throw e
                             } 
                         }
-                        // This truncates the '-SNAPSHOT' version from develop
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
-                        sh 'git add .'
-                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
-                        sh 'git status'
-                        sh "git push --set-upstream origin $RICE_RELEASE_BRANCH"
-                        sh 'set'
+                        try {
+                            // This truncates the '-SNAPSHOT' version from develop
+                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
+                            sh 'git add .'
+                            sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
+                            sh 'git status'
+                            sh "git push --set-upstream origin $RICE_RELEASE_BRANCH"
+                            sh 'set'
+                        }
+                        catch (Exception e){
+                             echo "EXCP:CAUGHT: trying to set Release version $RICE_RELEASE_VERSION to branch $RICE_RELEASE_BRANCH"
+                            echo "EXC: $e"
+                        
+                            // Ask user if we continue with release.  Continue or exit.
+                            userInput = input(
+                                id: 'userInput',    
+                                message: 'Continue with Release?',    
+                                parameters: [
+                                    [$class:'ChoiceParameterDefinition', 
+                                    choices: "YES\nNO",
+                                    name: 'Continue']
+                                ]  
+                            )
+                            if (userInput == "YES") {
+                                echo "You chose YES"
+                            } else if (userInput == "NO"){
+                                echo "You chose NO"
+                                throw e
+                            }                            
+                        }
                     }
                 }
                 stage ('Bump Rice Dev Branch')
@@ -126,14 +149,37 @@ node ('ec2_java_maven') {
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
+
+                        try {
+                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                            sh 'git diff'
+                            sh 'git add .'
+                            sh 'git status'
+                            sh 'git commit -m "RF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
+                            sh 'git status'
+                            sh 'git push'                            
+                        }
+                        catch (Exception e) {
+                            echo "EXCP:CAUGHT: trying to bump next dev version $NEXT_DEV_VERSION"
+                            echo "EXC: $e"
                         
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
-                        sh 'git diff'
-                        sh 'git add .'
-                        sh 'git status'
-                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
-                        sh 'git status'
-                        sh 'git push'
+                            // Ask user if we continue with release.  Continue or exit.
+                            userInput = input(
+                                id: 'userInput',    
+                                message: 'Continue with Release?',    
+                                parameters: [
+                                    [$class:'ChoiceParameterDefinition', 
+                                    choices: "YES\nNO",
+                                    name: 'Continue']
+                                ]  
+                            )
+                            if (userInput == "YES") {
+                                echo "You chose YES"
+                            } else if (userInput == "NO"){
+                                echo "You chose NO"
+                                throw e
+                            } 
+                        }
                     }
                 }
                 stage ('Update Rice Dependency')
@@ -152,12 +198,9 @@ node ('ec2_java_maven') {
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         // This will work as long as we use newer versions-maven-plugin v2.5
                         sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
-                        sh 'git diff'
-                        echo ""
-                        echo ""
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
-                        echo ""
-
+                        sh 'git diff'
+                        
                         /*
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'Verify Rice Dependency Version does not include -SNAPSHOT',
@@ -332,6 +375,7 @@ node ('ec2_java_maven') {
                 stage ('Build KFS')
                 {
                     echo "Building KFS ..."
+                    //build job: 'Rene - KFS 7 - Release Build - KFS', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.KFS_RELEASE_VERSION)]
 
 
                 }
