@@ -89,6 +89,9 @@ node ('ec2_java_maven') {
                         // End Verify
 
                         try {
+                            sh 'git status'
+                            sh "git checkout $RICE_DEV_BRANCH"
+                            sh 'git status'
                             sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
                             sh 'git diff'
                             sh 'git add .'
