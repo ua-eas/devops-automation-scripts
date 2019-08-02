@@ -207,15 +207,11 @@ node ('ec2_java_maven') {
                         sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         sh "git checkout $KFS_DEV_BRANCH"
-                        // This will work as long as we use newer versions-maven-plugin v2.5
-                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
-                        echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
-                        sh 'git diff'
                         
-                        /*
+                        
                         // *****TODO VERIFY 
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
-                        def DepInfo = input message: 'Verify Rice Dependency Version does not include -SNAPSHOT',
+                        def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
                             parameters: 
                                 [
                                     string(
@@ -224,11 +220,14 @@ node ('ec2_java_maven') {
                                         name: 'DEP_VERSION')
                                 ],
                             submitterParameter: 'approver'
-                        env.RICE_RELEASE_VERSION=DepInfo['DEP_VERSION']
-                        echo "RICE_RELEASE_VERSION= " + env.RICE_RELEASE_VERSION
+                        env.DEPENDENCY_RICE_VERSION=DepInfo['DEP_VERSION']  // User may have entered corrected value so we re-initialize.
+                        echo "DEPENDENCY_RICE_VERSION= " + env.DEPENDENCY_RICE_VERSION
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
-                        */
+
+                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
+                        echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
+                        sh 'git diff'                
 
                         sh 'git add .'
                         sh 'git status'
@@ -474,7 +473,7 @@ node ('ec2_java_maven') {
                 {   
                     echo "Building Rice ..."
                     // NOTE:  Parameters here will be used for the job as expected.
-                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
+                    //build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
                 }
                 stage ('Build KFS')
