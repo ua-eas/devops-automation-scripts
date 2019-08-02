@@ -68,6 +68,7 @@ node ('ec2_java_maven') {
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         // Create new release branch and update POM's.
                         try {
+                            sh 'git status'
                             sh "git checkout -b $RICE_RELEASE_BRANCH"
                         }
                         catch (Exception e) {
