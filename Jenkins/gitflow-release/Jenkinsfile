@@ -59,7 +59,14 @@ node ('ec2_java_maven') {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                     {
                         // Bump rice development branch version for next release.
-                        sh "git checkout $RICE_DEV_BRANCH"
+                        cleanWs()                      
+                        echo "Checkout repo: " + env.RICE_REPO_URL
+                        echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
                         def Integer_Value = env.RELEASE_VERSION.toInteger()
                         ++Integer_Value
                         env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
