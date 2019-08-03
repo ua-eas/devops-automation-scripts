@@ -72,7 +72,7 @@ node ('ec2_java_maven') {
                         env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                         
-                                               
+                        /*                     
                         // Verify with user $NEXT_DEV_VERSION before proceeding
                         def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
@@ -87,7 +87,7 @@ node ('ec2_java_maven') {
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
-
+                        */
                         try {
                             sh 'git status'
                             sh "git checkout $RICE_DEV_BRANCH"
@@ -208,7 +208,7 @@ node ('ec2_java_maven') {
                         sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
                         sh "git checkout $KFS_DEV_BRANCH"
                         
-                        
+                        /*
                         // *****TODO VERIFY 
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
                         def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
@@ -224,7 +224,8 @@ node ('ec2_java_maven') {
                         echo "DEPENDENCY_RICE_VERSION= " + env.DEPENDENCY_RICE_VERSION
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
-
+                        */
+                        
                         sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         sh 'git diff'                
