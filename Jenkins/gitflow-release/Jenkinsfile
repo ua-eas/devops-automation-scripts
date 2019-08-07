@@ -225,7 +225,7 @@ node ('ec2_java_maven') {
                         echo "Answered by " + DepInfo['approver']
                         // End Verify
                         */
-                        
+
                         sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
                         echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
                         sh 'git diff'                
@@ -460,8 +460,8 @@ node ('ec2_java_maven') {
                         sh "git checkout $KFS_DEV_BRANCH"
                         sh 'git pull'
                         sh 'git status'
-                        sh "git merge --no-edit origin/$KFS_RELEASE_BRANCH"
-                        sh 'git push'
+                        //sh "git merge --no-edit origin/$KFS_RELEASE_BRANCH"
+                        //sh 'git push'
 
                         // Delete Release Branch???
                         // Or we will need to correct release branch again.
@@ -474,7 +474,7 @@ node ('ec2_java_maven') {
                 {   
                     echo "Building Rice ..."
                     // NOTE:  Parameters here will be used for the job as expected.
-                    //build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
+                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
                 }
                 stage ('Build KFS')
