@@ -56,237 +56,6 @@ node ('ec2_java_maven') {
                 }
 
 
-                // switching order around where KFS is first for testing only
-
-               stage ('Update Rice Dependency')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Update the version of the Rice dependency in the KFS dev project to be the new release version.
-                        // push to publish
-                        cleanWs()
-                        echo "Checkout repo: " + env.KFS_REPO_URL
-                        echo "Checkout KFS Branch: " + env.KFS_DEV_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
-                        sh 'git branch'
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-                        sh "git checkout $KFS_DEV_BRANCH"
-                        
-                        /*
-                        // *****TODO VERIFY 
-                        // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
-                        def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
-                            parameters: 
-                                [
-                                    string(
-                                        defaultValue: env.RICE_RELEASE_VERSION,
-                                        description: ' ',
-                                        name: 'DEP_VERSION')
-                                ],
-                            submitterParameter: 'approver'
-                        env.DEPENDENCY_RICE_VERSION=DepInfo['DEP_VERSION']  // User may have entered corrected value so we re-initialize.
-                        echo "DEPENDENCY_RICE_VERSION= " + env.DEPENDENCY_RICE_VERSION
-                        echo "Answered by " + DepInfo['approver']
-                        // End Verify
-                        */
-
-                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
-                        echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
-                        sh 'git diff'                
-
-                        sh 'git add .'
-                        sh 'git status'
-                        sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
-                        sh 'git status'
-                        //sh "git push --set-upstream origin RF-$KFS_DEV_BRANCH"
-                        //sh 'git status'
-                    }
-                }
-                stage ('Bump KFS Dev Branch')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Bump KFS development branch version for next release.
-                        cleanWs()                      
-                        echo "Checkout repo: " + env.KFS_REPO_URL
-                        echo "Checkout Rice branch: " + env.KFS_DEV_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        def Integer_Value = env.RELEASE_VERSION.toInteger()
-                        ++Integer_Value
-                        env.NEXT_DEV_VERSION_KFS="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
-                        echo"NEXT_DEV_VERSION_KFS: $NEXT_DEV_VERSION_KFS"
-                        
-                        /*
-                        // Verify with user $NEXT_DEV_VERSION before proceeding
-                        def ReleaseInfo = input message: 'Verify Next Development Version',
-                            parameters: 
-                                [
-                                    string(
-                                        defaultValue: env.NEXT_DEV_VERSION_KFS,
-                                        description: ' ',
-                                        name: 'NEXT_VERSION')
-                                ],
-                            submitterParameter: 'approver'
-                        env.NEXT_DEV_VERSION_KFS=ReleaseInfo['NEXT_VERSION'] // User may have entered corrected value so we re-initialize.
-                        //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
-                        echo "NEXT_DEV_VERSION_KFS= " + env.NEXT_DEV_VERSION_KFS
-                        echo "Answered by " + ReleaseInfo['approver']
-                        // End Verify
-                        */
-
-                        try {
-                            sh 'git status'
-                            sh "git checkout $KFS_DEV_BRANCH"
-                            sh 'git status'
-                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION_KFS"'
-                            sh 'git diff'
-                            sh 'git add .'
-                            sh 'git status'
-                            sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION_KFS"'
-                            sh 'git status'
-                            sh 'git push'
-                        }
-                        catch (Exception e) {
-                            echo "EXCP:CAUGHT: trying to bump next KFS dev version $NEXT_DEV_VERSION_KFS"
-                            echo "EXC: $e"
-                        
-                            // Ask user if we continue with release.  Continue or exit.
-                            userInput = input(
-                                id: 'userInput',    
-                                message: 'Continue with Release?',    
-                                parameters: [
-                                    [$class:'ChoiceParameterDefinition', 
-                                    choices: "YES\nNO",
-                                    name: 'Continue']
-                                ]  
-                            )
-                            if (userInput == "YES") {
-                                echo "You chose YES"
-                            } else if (userInput == "NO"){
-                                echo "You chose NO"
-                                throw e
-                            } 
-                        }
-                    }
-                }                
-                stage ('Create KFS Release Branch')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        cleanWs()                      
-                        echo "Checkout repo: " + env.KFS_REPO_URL
-                        echo "Checkout KFS branch: " + env.KFS_DEV_BRANCH
-                        echo "Will be using KFS_RELEASE_VERSION: " + env.KFS_RELEASE_VERSION
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-                        // Create new release branch and update POM's.
-                        try {
-                            sh'git status'
-                            sh "git checkout -b $KFS_RELEASE_BRANCH"
-                        }
-                        catch (Exception e) {
-                            echo "EXCP:CAUGHT: trying to checkout RCF-$KFS_RELEASE_VERSION"
-                            echo "EXC: $e"
-                        
-                            // Ask user if we continue with release.  Continue or exit.
-                            userInput = input(
-                                id: 'userInput',    
-                                message: 'Continue with Release?',    
-                                parameters: [
-                                    [$class:'ChoiceParameterDefinition', 
-                                    choices: "YES\nNO",
-                                    name: 'Continue']
-                                ]  
-                            )
-                            if (userInput == "YES") {
-                                echo "You chose YES"
-                            } else if (userInput == "NO"){
-                                echo "You chose NO"
-                                throw e
-                            } 
-                        }
-                        // This truncates the '-SNAPSHOT' version from develop
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$KFS_RELEASE_VERSION"'
-                        sh 'git add .'
-                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $KFS_RELEASE_VERSION"'
-                        sh 'git status'
-                        sh "git push --set-upstream origin $KFS_RELEASE_BRANCH"
-                        sh 'set'
-                    }
-                }
-
-
-
-                stage ('Merge KFS Release Finish')
-                {
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Merge Rel branch to Master
-                        cleanWs()
-                        sh 'set'
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])  
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        //sh 'git pull'  
-                        sh "git checkout $KFS_MASTER_BRANCH"
-                        sh 'git pull'
-                        sh 'git status'
-                        sh "git merge origin/$KFS_RELEASE_BRANCH"
-                        sh 'git status'
-                        //sh 'git add .'
-                        //sh 'git commit -m "RF-Jenkins: Merging to master branch $KFS_MASTER_BRANCH release: $KFS_RELEASE_VERSION"'
-                        sh 'git push'
-
-                        // Tag Master post merge
-                        //sh "git checkout $KFS_MASTER_BRANCH"
-                        //sh 'git pull'
-                        sh 'git tag -a "RF-TAG-$KFS_RELEASE_VERSION" -m "Jenkins: Release $KFS_RELEASE_VERSION"'
-                        sh 'git push --tags'
-
-
-                        // Merge Rel branch to Develop
-                        // Hack so that merging release branch in won't cause pom conflicts
-                        cleanWs()
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])  
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        sh "git checkout $KFS_RELEASE_BRANCH"
-                        sh 'git pull'
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION_KFS"'
-                        sh 'git add .'
-                        sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                        sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
-                        sh 'git status'
-                        sh "git checkout $KFS_DEV_BRANCH"
-                        sh 'git pull'
-                        sh 'git status'
-                        sh "git merge --no-edit origin/$KFS_RELEASE_BRANCH"
-                        sh 'git push'
-
-                        // Delete Release Branch???
-                        // Or we will need to correct release branch again.
-                        //"git push -d origin $KFS_RELEASE_BRANCH"
-                        //"git branch -D $KFS_RELEASE_BRANCH"
-                    }
-
-                }
-
-
-
-
-
                 stage ('Bump Rice Dev Branch')
                 {        
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -491,10 +260,237 @@ node ('ec2_java_maven') {
                     build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
 
                 }
+
+               stage ('Update Rice Dependency')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        // Update the version of the Rice dependency in the KFS dev project to be the new release version.
+                        // push to publish
+                        cleanWs()
+                        echo "Checkout repo: " + env.KFS_REPO_URL
+                        echo "Checkout KFS Branch: " + env.KFS_DEV_BRANCH
+                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
+                        sh 'git branch'
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                        sh "git checkout $KFS_DEV_BRANCH"
+                        
+                        
+                        // *****TODO VERIFY 
+                        // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
+                        def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
+                            parameters: 
+                                [
+                                    string(
+                                        defaultValue: env.RICE_RELEASE_VERSION,
+                                        description: ' ',
+                                        name: 'DEP_VERSION')
+                                ],
+                            submitterParameter: 'approver'
+                        env.DEPENDENCY_RICE_VERSION=DepInfo['DEP_VERSION']  // User may have entered corrected value so we re-initialize.
+                        echo "DEPENDENCY_RICE_VERSION= " + env.DEPENDENCY_RICE_VERSION
+                        echo "Answered by " + DepInfo['approver']
+                        // End Verify
+                        
+
+                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
+                        echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
+                        sh 'git diff'                
+
+                        sh 'git add .'
+                        sh 'git status'
+                        sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
+                        sh 'git status'
+                        //sh "git push --set-upstream origin RF-$KFS_DEV_BRANCH"
+                        //sh 'git status'
+                    }
+                }
+                stage ('Bump KFS Dev Branch')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        // Bump KFS development branch version for next release.
+                        cleanWs()                      
+                        echo "Checkout repo: " + env.KFS_REPO_URL
+                        echo "Checkout Rice branch: " + env.KFS_DEV_BRANCH
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                        def Integer_Value = env.RELEASE_VERSION.toInteger()
+                        ++Integer_Value
+                        env.NEXT_DEV_VERSION_KFS="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
+                        echo"NEXT_DEV_VERSION_KFS: $NEXT_DEV_VERSION_KFS"
+                        
+                        /*
+                        // Verify with user $NEXT_DEV_VERSION before proceeding
+                        def ReleaseInfo = input message: 'Verify Next Development Version',
+                            parameters: 
+                                [
+                                    string(
+                                        defaultValue: env.NEXT_DEV_VERSION_KFS,
+                                        description: ' ',
+                                        name: 'NEXT_VERSION')
+                                ],
+                            submitterParameter: 'approver'
+                        env.NEXT_DEV_VERSION_KFS=ReleaseInfo['NEXT_VERSION'] // User may have entered corrected value so we re-initialize.
+                        //echo "NEXT_VERSION = " + ReleaseInfo['NEXT_VERSION']
+                        echo "NEXT_DEV_VERSION_KFS= " + env.NEXT_DEV_VERSION_KFS
+                        echo "Answered by " + ReleaseInfo['approver']
+                        // End Verify
+                        */
+
+                        try {
+                            sh 'git status'
+                            sh "git checkout $KFS_DEV_BRANCH"
+                            sh 'git status'
+                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION_KFS"'
+                            sh 'git diff'
+                            sh 'git add .'
+                            sh 'git status'
+                            sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION_KFS"'
+                            sh 'git status'
+                            sh 'git push'
+                        }
+                        catch (Exception e) {
+                            echo "EXCP:CAUGHT: trying to bump next KFS dev version $NEXT_DEV_VERSION_KFS"
+                            echo "EXC: $e"
+                        
+                            // Ask user if we continue with release.  Continue or exit.
+                            userInput = input(
+                                id: 'userInput',    
+                                message: 'Continue with Release?',    
+                                parameters: [
+                                    [$class:'ChoiceParameterDefinition', 
+                                    choices: "YES\nNO",
+                                    name: 'Continue']
+                                ]  
+                            )
+                            if (userInput == "YES") {
+                                echo "You chose YES"
+                            } else if (userInput == "NO"){
+                                echo "You chose NO"
+                                throw e
+                            } 
+                        }
+                    }
+                }                
+                stage ('Create KFS Release Branch')
+                {        
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        cleanWs()                      
+                        echo "Checkout repo: " + env.KFS_REPO_URL
+                        echo "Checkout KFS branch: " + env.KFS_DEV_BRANCH
+                        echo "Will be using KFS_RELEASE_VERSION: " + env.KFS_RELEASE_VERSION
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                        // Create new release branch and update POM's.
+                        try {
+                            sh'git status'
+                            sh "git checkout -b $KFS_RELEASE_BRANCH"
+                        }
+                        catch (Exception e) {
+                            echo "EXCP:CAUGHT: trying to checkout RCF-$KFS_RELEASE_VERSION"
+                            echo "EXC: $e"
+                        
+                            // Ask user if we continue with release.  Continue or exit.
+                            userInput = input(
+                                id: 'userInput',    
+                                message: 'Continue with Release?',    
+                                parameters: [
+                                    [$class:'ChoiceParameterDefinition', 
+                                    choices: "YES\nNO",
+                                    name: 'Continue']
+                                ]  
+                            )
+                            if (userInput == "YES") {
+                                echo "You chose YES"
+                            } else if (userInput == "NO"){
+                                echo "You chose NO"
+                                throw e
+                            } 
+                        }
+                        // This truncates the '-SNAPSHOT' version from develop
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$KFS_RELEASE_VERSION"'
+                        sh 'git add .'
+                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $KFS_RELEASE_VERSION"'
+                        sh 'git status'
+                        sh "git push --set-upstream origin $KFS_RELEASE_BRANCH"
+                        sh 'set'
+                    }
+                }
+
+
+
+                stage ('Merge KFS Release Finish')
+                {
+                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                    {
+                        // Merge Rel branch to Master
+                        cleanWs()
+                        sh 'set'
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])  
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                        //sh 'git pull'  
+                        sh "git checkout $KFS_MASTER_BRANCH"
+                        sh 'git pull'
+                        sh 'git status'
+                        sh "git merge origin/$KFS_RELEASE_BRANCH"
+                        sh 'git status'
+                        //sh 'git add .'
+                        //sh 'git commit -m "RF-Jenkins: Merging to master branch $KFS_MASTER_BRANCH release: $KFS_RELEASE_VERSION"'
+                        sh 'git push'
+
+                        // Tag Master post merge
+                        //sh "git checkout $KFS_MASTER_BRANCH"
+                        //sh 'git pull'
+                        sh 'git tag -a "RF-TAG-$KFS_RELEASE_VERSION" -m "Jenkins: Release $KFS_RELEASE_VERSION"'
+                        sh 'git push --tags'
+
+
+                        // Merge Rel branch to Develop
+                        // Hack so that merging release branch in won't cause pom conflicts
+                        cleanWs()
+                        checkout([$class: 'GitSCM', branches: [[name: "*/$KFS_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])  
+                        sh "git config user.name $GIT_USERNAME"
+                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                        sh "git checkout $KFS_RELEASE_BRANCH"
+                        sh 'git pull'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION_KFS"'
+                        sh 'git add .'
+                        sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
+                        sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
+                        sh 'git status'
+                        sh "git checkout $KFS_DEV_BRANCH"
+                        sh 'git pull'
+                        sh 'git status'
+                        sh "git merge --no-edit origin/$KFS_RELEASE_BRANCH"
+                        sh 'git push'
+
+                        // Delete Release Branch???
+                        // Or we will need to correct release branch again.
+                        //"git push -d origin $KFS_RELEASE_BRANCH"
+                        //"git branch -D $KFS_RELEASE_BRANCH"
+                    }
+
+                }
+
+
                 stage ('Build KFS')
                 {
                     echo "Building KFS ..."
-                    //build job: 'Rene - KFS 7 - Release Build - KFS', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.KFS_RELEASE_VERSION)]
+                    build job: 'Rene - KFS 7 - Release Build - KFS', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.KFS_RELEASE_VERSION)]
 
 
                 }
