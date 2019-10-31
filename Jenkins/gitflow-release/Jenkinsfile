@@ -34,7 +34,7 @@ node ('ec2_java_maven') {
             "KFS_DEV_BRANCH=rf-ua-development",
             "KFS_MASTER_BRANCH=rf-ua-master",
             "KFS_RELEASE_BRANCH=rf-${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}"
-            ]) 
+        ]) 
             {
                 // Print out variables.
                 stage ('Info')
@@ -74,7 +74,7 @@ node ('ec2_java_maven') {
                         env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
                         
-                        /*                     
+                                            
                         // Verify with user $NEXT_DEV_VERSION before proceeding
                         def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
@@ -89,7 +89,7 @@ node ('ec2_java_maven') {
                         echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
-                        */
+                        
                         try {
                             sh 'git status'
                             sh "git checkout $RICE_DEV_BRANCH"
@@ -125,6 +125,7 @@ node ('ec2_java_maven') {
                         }
                     }
                 }
+
                 stage ('Create Rice Release Branch')
                 {
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -307,6 +308,8 @@ node ('ec2_java_maven') {
                         //sh 'git status'
                     }
                 }
+
+
                 stage ('Bump KFS Dev Branch')
                 {        
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -325,7 +328,7 @@ node ('ec2_java_maven') {
                         env.NEXT_DEV_VERSION_KFS="${env.RELEASE_PREFIX_KFS}$Integer_Value" + "-SNAPSHOT"
                         echo"NEXT_DEV_VERSION_KFS: $NEXT_DEV_VERSION_KFS"
                         
-                        /*
+                        
                         // Verify with user $NEXT_DEV_VERSION before proceeding
                         def ReleaseInfo = input message: 'Verify Next Development Version',
                             parameters: 
@@ -341,7 +344,7 @@ node ('ec2_java_maven') {
                         echo "NEXT_DEV_VERSION_KFS= " + env.NEXT_DEV_VERSION_KFS
                         echo "Answered by " + ReleaseInfo['approver']
                         // End Verify
-                        */
+                        
 
                         try {
                             sh 'git status'
@@ -377,7 +380,8 @@ node ('ec2_java_maven') {
                             } 
                         }
                     }
-                }                
+                }  
+
                 stage ('Create KFS Release Branch')
                 {        
                     withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -425,8 +429,6 @@ node ('ec2_java_maven') {
                         sh 'set'
                     }
                 }
-
-
 
                 stage ('Merge KFS Release Finish')
                 {
@@ -485,7 +487,6 @@ node ('ec2_java_maven') {
                     }
 
                 }
-
 
                 stage ('Build KFS')
                 {
