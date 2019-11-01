@@ -491,7 +491,7 @@ node ('ec2_java_maven') {
                 stage ('Build KFS')
                 {
                     echo "Building KFS ..."
-                    build job: 'Rene - KFS 7 - Release Build - KFS', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.KFS_RELEASE_VERSION)]
+                    build job: 'Rene - KFS 7 - Release Build - KFS', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'KFS_APP_VERSION', value: env.KFS_RELEASE_VERSION)]
 
 
                 }
