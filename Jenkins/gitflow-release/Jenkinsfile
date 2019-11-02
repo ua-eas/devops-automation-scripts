@@ -59,9 +59,8 @@ node ('ec2_java_maven') {
             // This takes everything on the develop branch into a new 'release' branch.
             stage ('Create Rice Release Branch') {
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    
                     cleanWs()                      
-                    //echo "Checkout repo: " + env.RICE_REPO_URL
-                    //echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
                     checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
                     sh "git config user.name $GIT_USERNAME"
                     sh 'git config user.email katt-toolsadm@.list.arizona.edu'
@@ -133,6 +132,25 @@ node ('ec2_java_maven') {
 
             }//end stage
 
+            stage ('Continue...') {
+                // Ask user if we continue with release.  Continue or exit.
+                userInput = input(
+                    id: 'userInput',    
+                    message: 'Continue with Release?',    
+                    parameters: [
+                        [$class:'ChoiceParameterDefinition', 
+                        choices: "YES\nNO",
+                        name: 'Continue']
+                    ]  
+                )
+                if (userInput == "YES") {
+                    echo "You chose YES"
+                } else if (userInput == "NO"){
+                    echo "You chose NO"
+                    throw e
+                } 
+            }
+
             stage ('Bump Rice Dev Branch') {        
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                 {
@@ -203,65 +221,159 @@ node ('ec2_java_maven') {
 
             }
 
+            stage ('Continue...') {
+                // Ask user if we continue with release.  Continue or exit.
+                userInput = input(
+                    id: 'userInput',    
+                    message: 'Continue with Release?',    
+                    parameters: [
+                        [$class:'ChoiceParameterDefinition', 
+                        choices: "YES\nNO",
+                        name: 'Continue']
+                    ]  
+                )
+                if (userInput == "YES") {
+                    echo "You chose YES"
+                } else if (userInput == "NO"){
+                    echo "You chose NO"
+                    throw e
+                } 
+            }
+
             stage ('Merge Rice Release to Master') {
-                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                {
-                    // Merge Rel branch to Master
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    
                     cleanWs()
                     checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
                     sh "git config user.name $GIT_USERNAME"
                     sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                     sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
  
-                    sh "git checkout $RICE_RELEASE_BRANCH"
-                    sh 'git pull'
-                    sh "git checkout $RICE_MASTER_BRANCH"
-                    sh 'git pull'
-                    sh 'git status'
-                    sh "git merge origin/$RICE_RELEASE_BRANCH"
-                    sh 'git status'
-                    //sh 'git add .'
-                    //sh 'git commit -m "RF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
-                    sh 'git push'
-                    sh 'git status'
+                    try {
+                        sh "git checkout $RICE_RELEASE_BRANCH"
+                        sh 'git pull'
+                        sh "git checkout $RICE_MASTER_BRANCH"
+                        sh 'git pull'
+                        sh 'git status'
+                        sh "git merge origin/$RICE_RELEASE_BRANCH"
+                        sh 'git status'
+                        sh 'git push'
+                        sh 'git status'
+                    }//end try
+                    catch (Exception e){
+                        echo "EXCP:CAUGHT: trying to merge Rice Release to Master branch."
+                        echo "EXC: $e"
+                        
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                            echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        }                            
+                    }//end catch
+
 
                     // Tag Master post merge
                     //sh "git checkout $RICE_MASTER_BRANCH"
                     //sh 'git pull'
                     sh 'git tag -a "RF-TAG-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
                     sh 'git push --tags'
+                }
 
+            }
 
-                    // Merge Rel branch to Develop
-                    // Hack so that merging release branch in won't cause pom conflicts
+            stage ('Continue...') {
+                // Ask user if we continue with release.  Continue or exit.
+                userInput = input(
+                    id: 'userInput',    
+                    message: 'Continue with Release?',    
+                    parameters: [
+                        [$class:'ChoiceParameterDefinition', 
+                        choices: "YES\nNO",
+                        name: 'Continue']
+                    ]  
+                )
+                if (userInput == "YES") {
+                    echo "You chose YES"
+                } else if (userInput == "NO"){
+                    echo "You chose NO"
+                    throw e
+                } 
+            }
+
+            stage ('Merge Rice Release to Develop') {
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    
                     cleanWs()
                     checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
                     sh "git config user.name $GIT_USERNAME"
                     sh 'git config user.email katt-toolsadm@.list.arizona.edu'
                     sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
 
-                    sh "git checkout $RICE_RELEASE_BRANCH"
-                    sh 'git pull'
-                    sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
-                    sh 'git diff'
-                    sh 'git add .'
-                    sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                    sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
-                    sh 'git status'
-                    
-                    
-                    sh "git checkout $RICE_DEV_BRANCH"
-                    sh 'git pull'
-                    sh 'git status'
-                    sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
-                    sh 'git push'
-                    sh 'git status'
+                    // Hack so that merging release branch in won't cause pom conflicts
+                    try {
+                        sh "git checkout $RICE_RELEASE_BRANCH"
+                        sh 'git pull'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'git diff'
+                        sh 'git add .'
+                        sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
+                        sh 'git push'  
+                        sh 'git status'
+                        
+                        // Merge release into develop.
+                        sh "git checkout $RICE_DEV_BRANCH"
+                        sh 'git pull'
+                        sh 'git status'
+                        sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
+                        sh 'git push'
+                        sh 'git status'
 
-                    // Delete Release Branch???
-                    // Or we will need to correct release branch again.
-                    //"git push -d origin $RICE_RELEASE_BRANCH"
-                    //"git branch -D $RICE_RELEASE_BRANCH"
-                }
+                        // Delete Release Branch???
+                        // Or we will need to correct release branch again.
+                        sh "git checkout $RICE_RELEASE_BRANCH"
+                        sh 'git pull'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
+                        sh 'git diff'
+                        sh 'git add .'
+                        sh 'git commit -m "Jenkins: Setting POM release version $RICE_RELEASE_VERSION"'
+                        sh 'git push'
+                        sh 'git status'
+
+                    }//end try
+                    catch (Exception e){
+                        echo "EXCP:CAUGHT: trying to merge Rice Release to Develop branch."
+                        echo "EXC: $e"
+                        
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                            echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        }                            
+                    }//end catch
+
+                }//end w/creds
 
             }
 
