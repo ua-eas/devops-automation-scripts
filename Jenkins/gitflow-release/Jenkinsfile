@@ -281,11 +281,12 @@ node ('ec2_java_maven') {
                         
                         // *****TODO VERIFY 
                         // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
+                        // Nov 01, 2019 using -SNAPSHOT and bumping rice.version here.  Will we need to also bump in the release branch?
                         def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
                             parameters: 
                                 [
                                     string(
-                                        defaultValue: env.RICE_RELEASE_VERSION,
+                                        defaultValue: env.NEXT_DEV_VERSION,
                                         description: ' ',
                                         name: 'DEP_VERSION')
                                 ],
@@ -304,6 +305,7 @@ node ('ec2_java_maven') {
                         sh 'git status'
                         sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
                         sh 'git status'
+                        sh 'git push'
                         //sh "git push --set-upstream origin RF-$KFS_DEV_BRANCH"
                         //sh 'git status'
                     }
