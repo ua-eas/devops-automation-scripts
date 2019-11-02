@@ -133,8 +133,7 @@ node ('ec2_java_maven') {
 
             }//end stage
 
-            stage ('Bump Rice Dev Branch')
-            {        
+            stage ('Bump Rice Dev Branch') {        
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                 {
                     // Bump rice development branch version for next release.
@@ -204,6 +203,95 @@ node ('ec2_java_maven') {
 
             }
 
+            stage ('Merge Rice Release to Master') {
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
+                {
+                    // Merge Rel branch to Master
+                    cleanWs()
+                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                    sh "git config user.name $GIT_USERNAME"
+                    sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                    sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+ 
+                    sh "git checkout $RICE_RELEASE_BRANCH"
+                    sh 'git pull'
+                    sh "git checkout $RICE_MASTER_BRANCH"
+                    sh 'git pull'
+                    sh 'git status'
+                    sh "git merge origin/$RICE_RELEASE_BRANCH"
+                    sh 'git status'
+                    //sh 'git add .'
+                    //sh 'git commit -m "RF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
+                    sh 'git push'
+                    sh 'git status'
+
+                    // Tag Master post merge
+                    //sh "git checkout $RICE_MASTER_BRANCH"
+                    //sh 'git pull'
+                    sh 'git tag -a "RF-TAG-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
+                    sh 'git push --tags'
+
+
+                    // Merge Rel branch to Develop
+                    // Hack so that merging release branch in won't cause pom conflicts
+                    cleanWs()
+                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
+                    sh "git config user.name $GIT_USERNAME"
+                    sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                    sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                    sh "git checkout $RICE_RELEASE_BRANCH"
+                    sh 'git pull'
+                    sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                    sh 'git diff'
+                    sh 'git add .'
+                    sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
+                    sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
+                    sh 'git status'
+                    
+                    
+                    sh "git checkout $RICE_DEV_BRANCH"
+                    sh 'git pull'
+                    sh 'git status'
+                    sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
+                    sh 'git push'
+                    sh 'git status'
+
+                    // Delete Release Branch???
+                    // Or we will need to correct release branch again.
+                    //"git push -d origin $RICE_RELEASE_BRANCH"
+                    //"git branch -D $RICE_RELEASE_BRANCH"
+                }
+
+            }
+
+            stage ('Continue...') {
+                // Ask user if we continue with release.  Continue or exit.
+                userInput = input(
+                    id: 'userInput',    
+                    message: 'Continue with Release?',    
+                    parameters: [
+                        [$class:'ChoiceParameterDefinition', 
+                        choices: "YES\nNO",
+                        name: 'Continue']
+                    ]  
+                )
+                if (userInput == "YES") {
+                    echo "You chose YES"
+                } else if (userInput == "NO"){
+                    echo "You chose NO"
+                    throw e
+                } 
+            }
+
+            stage ('Build Rice')
+            {   
+                echo "Building Rice ..."
+                // NOTE:  Parameters here will be used for the job as expected.
+                build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
+
+            }
+
             stage ('Continue...') {
                 // Ask user if we continue with release.  Continue or exit.
                 userInput = input(
@@ -224,72 +312,6 @@ node ('ec2_java_maven') {
             }
 
 
- 
-                stage ('Merge Rice Release Finish')
-                {
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Merge Rel branch to Master
-                        cleanWs()
-                        sh 'set'
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        //sh 'git pull'  
-                        sh "git checkout $RICE_MASTER_BRANCH"
-                        sh 'git pull'
-                        sh 'git status'
-                        sh "git merge origin/$RICE_RELEASE_BRANCH"
-                        sh 'git status'
-                        //sh 'git add .'
-                        //sh 'git commit -m "RF-Jenkins: Merging to master branch $RICE_MASTER_BRANCH release: $RICE_RELEASE_VERSION"'
-                        sh 'git push'
-
-                        // Tag Master post merge
-                        //sh "git checkout $RICE_MASTER_BRANCH"
-                        //sh 'git pull'
-                        sh 'git tag -a "RF-TAG-$RICE_RELEASE_VERSION" -m "Jenkins: Release $RICE_RELEASE_VERSION"'
-                        sh 'git push --tags'
-
-
-                        // Merge Rel branch to Develop
-                        // Hack so that merging release branch in won't cause pom conflicts
-                        cleanWs()
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_RELEASE_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])  
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        sh "git checkout $RICE_RELEASE_BRANCH"
-                        sh 'git pull'
-                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
-                        sh 'git add .'
-                        sh 'git commit -m "Jenkins: Fast-forwarding release version to merge into develop"'
-                        sh 'git push'  // Maybe we dont push to server so that we do not have to revert this back to the release version.
-                        sh 'git status'
-                        sh "git checkout $RICE_DEV_BRANCH"
-                        sh 'git pull'
-                        sh 'git status'
-                        sh "git merge --no-edit origin/$RICE_RELEASE_BRANCH"
-                        sh 'git push'
-
-                        // Delete Release Branch???
-                        // Or we will need to correct release branch again.
-                        //"git push -d origin $RICE_RELEASE_BRANCH"
-                        //"git branch -D $RICE_RELEASE_BRANCH"
-                    }
-
-                }
-
-                stage ('Build Rice')
-                {   
-                    echo "Building Rice ..."
-                    // NOTE:  Parameters here will be used for the job as expected.
-                    build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
-
-                }
 
                stage ('Update Rice Dependency')
                 {        
