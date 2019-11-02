@@ -35,166 +35,195 @@ node ('ec2_java_maven') {
             "KFS_MASTER_BRANCH=rf-ua-master",
             "KFS_RELEASE_BRANCH=rf-${env.RELEASE_PREFIX_KFS}${env.RELEASE_VERSION}"
         ]) 
-            {
-                // Print out variables.
-                stage ('Info')
-                {
-                    // RCF Adding INFO messages.
-                    echo "DBG: JAVA_HOME: $JAVA_HOME\nDBG: PATH+MAVEN: $PATH+MAVEN\nDBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
-                    echo "DBG: RELEASE_VERSION: $RELEASE_VERSION\nDBG: RELEASE_TICKET: $RELEASE_TICKET\nDBG: RELEASE_PREFIX_RICE: $RELEASE_PREFIX_RICE\nDBG: RICE_RELEASE_VERSION: $RICE_RELEASE_VERSION"                    
-                    echo "DBG: RELEASE_PREFIX_KFS: $RELEASE_PREFIX_KFS\nDBG: KFS_RELEASE_VERSION: $KFS_RELEASE_VERSION" 
+        
+        // Begin stages
+        {
+            // Print out variables.
+            stage ('Info') {
+                // RCF Adding INFO messages.
+                echo "DBG: JAVA_HOME: $JAVA_HOME\nDBG: PATH+MAVEN: $PATH+MAVEN\nDBG: MVN_SETTINGS_XML: $MVN_SETTINGS_XML"
+                echo "DBG: RELEASE_VERSION: $RELEASE_VERSION\nDBG: RELEASE_TICKET: $RELEASE_TICKET\nDBG: RELEASE_PREFIX_RICE: $RELEASE_PREFIX_RICE\nDBG: RICE_RELEASE_VERSION: $RICE_RELEASE_VERSION"                    
+                echo "DBG: RELEASE_PREFIX_KFS: $RELEASE_PREFIX_KFS\nDBG: KFS_RELEASE_VERSION: $KFS_RELEASE_VERSION" 
                                     
-                    echo "DBG: RICE_REPO_URL: $RICE_REPO_URL"
-                    echo "DBG: RICE_DEV_BRANCH: $RICE_DEV_BRANCH"
-                    echo "DBG: RICE_MASTER_BRANCH: $RICE_MASTER_BRANCH"
-                    echo "DBG: RICE_RELEASE_BRANCH: $RICE_RELEASE_BRANCH"
+                echo "DBG: RICE_REPO_URL: $RICE_REPO_URL"
+                echo "DBG: RICE_DEV_BRANCH: $RICE_DEV_BRANCH"
+                echo "DBG: RICE_MASTER_BRANCH: $RICE_MASTER_BRANCH"
+                echo "DBG: RICE_RELEASE_BRANCH: $RICE_RELEASE_BRANCH"
 
-                    echo "DBG: KFS_REPO_URL: $KFS_REPO_URL"
-                    echo "DBG: KFS_DEV_BRANCH: $KFS_DEV_BRANCH"
-                    echo "DBG: KFS_MASTER_BRANCH: $KFS_MASTER_BRANCH"
-                    echo "DBG: KFS_RELEASE_BRANCH: $KFS_RELEASE_BRANCH"
-                }
+                echo "DBG: KFS_REPO_URL: $KFS_REPO_URL"
+                echo "DBG: KFS_DEV_BRANCH: $KFS_DEV_BRANCH"
+                echo "DBG: KFS_MASTER_BRANCH: $KFS_MASTER_BRANCH"
+                echo "DBG: KFS_RELEASE_BRANCH: $KFS_RELEASE_BRANCH"
+            }
 
-
-                stage ('Bump Rice Dev Branch')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Bump rice development branch version for next release.
-                        cleanWs()                      
-                        echo "Checkout repo: " + env.RICE_REPO_URL
-                        echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-
-                        def Integer_Value = env.RELEASE_VERSION.toInteger()
-                        ++Integer_Value
-                        env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
-                        echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
-                        
-                                            
-                        // Verify with user $NEXT_DEV_VERSION before proceeding
-                        def ReleaseInfo = input message: 'Verify Next Development Version',
-                            parameters: 
-                                [
-                                    string(
-                                        defaultValue: env.NEXT_DEV_VERSION,
-                                        description: ' ',
-                                        name: 'NEXT_VERSION')
-                                ],
-                            submitterParameter: 'approver'
-                        env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']  // User may have entered corrected value so we re-initialize.
-                        echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
-                        echo "Answered by " + ReleaseInfo['approver']
-                        // End Verify
-                        
-                        try {
-                            sh 'git status'
-                            sh "git checkout $RICE_DEV_BRANCH"
-                            sh 'git status'
-                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
-                            sh 'git diff'
-                            sh 'git add .'
-                            sh 'git status'
-                            sh 'git commit -m "RF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
-                            sh 'git status'
-                            sh 'git push'                            
-                        }
-                        catch (Exception e) {
-                            echo "EXCP:CAUGHT: trying to bump next dev version $NEXT_DEV_VERSION"
-                            echo "EXC: $e"
-                        
-                            // Ask user if we continue with release.  Continue or exit.
-                            userInput = input(
-                                id: 'userInput',    
-                                message: 'Continue with Release?',    
-                                parameters: [
-                                    [$class:'ChoiceParameterDefinition', 
-                                    choices: "YES\nNO",
-                                    name: 'Continue']
-                                ]  
-                            )
-                            if (userInput == "YES") {
-                                echo "You chose YES"
-                            } else if (userInput == "NO"){
-                                echo "You chose NO"
-                                throw e
-                            } 
-                        }
+            // This takes everything on the develop branch into a new 'release' branch.
+            stage ('Create Rice Release Branch') {
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    cleanWs()                      
+                    //echo "Checkout repo: " + env.RICE_REPO_URL
+                    //echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
+                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
+                    sh "git config user.name $GIT_USERNAME"
+                    sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                    sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                    
+                    // Create new release branch and update POM's.
+                    try {
+                        sh 'git checkout $RICE_DEV_BRANCH'
+                        sh 'git status'
+                        sh "git checkout -b $RICE_RELEASE_BRANCH"
+                        sh 'git status'
                     }
-                }
+                    catch (Exception e) {
+                        echo "EXCP:CAUGHT: trying to checkout $RICE_RELEASE_VERSION"
+                        echo "EXC: $e"
+                        
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                            echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        } 
+                    }//end catch
 
-                stage ('Create Rice Release Branch')
+                    // The develop branch is always one version ahead from what has been released, and the develop
+                    // version also has an appended '-SNAPSHOT' string; the following will hunt out all POM files,
+                    // remove that '-SNAPSHOT', which is how we need it for the release artifacts.
+                    try {
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
+                        sh 'git diff'
+                        sh 'git add .'
+                        sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease branch: Setting pom rice release version: $RICE_RELEASE_VERSION"'
+                        sh 'git status'
+                        sh "git push --set-upstream origin $RICE_RELEASE_BRANCH"
+                    }
+                    catch (Exception e){
+                        echo "EXCP:CAUGHT: trying to set Release version $RICE_RELEASE_VERSION to branch $RICE_RELEASE_BRANCH"
+                        echo "EXC: $e"
+                        
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                            echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        }                            
+                    }//end catch
+
+                }//end w/creds
+
+            }//end stage
+
+            stage ('Bump Rice Dev Branch')
+            {        
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
                 {
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        cleanWs()                      
-                        echo "Checkout repo: " + env.RICE_REPO_URL
-                        echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
-                        // Create new release branch and update POM's.
-                        try {
-                            sh 'git status'
-                            sh "git checkout -b $RICE_RELEASE_BRANCH"
-                        }
-                        catch (Exception e) {
-                            echo "EXCP:CAUGHT: trying to checkout $RICE_RELEASE_VERSION"
-                            echo "EXC: $e"
+                    // Bump rice development branch version for next release.
+                    cleanWs()                      
+                    //echo "Checkout repo: " + env.RICE_REPO_URL
+                    //echo "Checkout Rice branch: " + env.RICE_DEV_BRANCH
+                    checkout([$class: 'GitSCM', branches: [[name: "*/$RICE_DEV_BRANCH"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.RICE_REPO_URL]]])
+                    sh "git config user.name $GIT_USERNAME"
+                    sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                    sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+
+                    def Integer_Value = env.RELEASE_VERSION.toInteger()
+                    ++Integer_Value
+                    env.NEXT_DEV_VERSION="${env.RELEASE_PREFIX_RICE}$Integer_Value" + "-SNAPSHOT"
+                    echo"NEXT_DEV_VERSION: $NEXT_DEV_VERSION"
+
+                /*                         
+                    // Verify with user $NEXT_DEV_VERSION before proceeding
+                    def ReleaseInfo = input message: 'Verify Next Development Version',
+                        parameters: 
+                            [
+                                string(
+                                    defaultValue: env.NEXT_DEV_VERSION,
+                                    description: ' ',
+                                    name: 'NEXT_VERSION')
+                            ],
+                        submitterParameter: 'approver'
+                    env.NEXT_DEV_VERSION=ReleaseInfo['NEXT_VERSION']  // User may have entered corrected value so we re-initialize.
+                    echo "NEXT_DEV_VERSION= " + env.NEXT_DEV_VERSION
+                    echo "Answered by " + ReleaseInfo['approver']
+                    // End Verify
+                */    
+                    try {
+                        sh "git checkout $RICE_DEV_BRANCH"
+                        sh 'git status'
+                        sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$NEXT_DEV_VERSION"'
+                        sh 'git diff'
+                        sh 'git add .'
+                        sh 'git status'
+                        sh 'git commit -m "RF-$RELEASE_TICKET-JenkinsRelease: Setting pom developer version: $NEXT_DEV_VERSION"'
+                        sh 'git status'
+                        sh 'git push'                            
+                    }//end try
+                    catch (Exception e) {
+                        echo "EXCP:CAUGHT: trying to bump next dev version $NEXT_DEV_VERSION"
+                        echo "EXC: $e"
                         
-                            // Ask user if we continue with release.  Continue or exit.
-                            userInput = input(
-                                id: 'userInput',    
-                                message: 'Continue with Release?',    
-                                parameters: [
-                                    [$class:'ChoiceParameterDefinition', 
-                                    choices: "YES\nNO",
-                                    name: 'Continue']
-                                ]  
-                            )
-                            if (userInput == "YES") {
-                                echo "You chose YES"
-                            } else if (userInput == "NO"){
-                                echo "You chose NO"
-                                throw e
-                            } 
-                        }
-                        try {
-                            // This truncates the '-SNAPSHOT' version from develop
-                            sh 'mvn versions:set -DgenerateBackupPoms=false -DnewVersion="$RICE_RELEASE_VERSION"'
-                            sh 'git add .'
-                            sh 'git commit -m "RCF-$RELEASE_TICKET-JenkinsRelease: Setting pom release version: $RICE_RELEASE_VERSION"'
-                            sh 'git status'
-                            sh "git push --set-upstream origin $RICE_RELEASE_BRANCH"
-                            sh 'set'
-                        }
-                        catch (Exception e){
-                             echo "EXCP:CAUGHT: trying to set Release version $RICE_RELEASE_VERSION to branch $RICE_RELEASE_BRANCH"
-                            echo "EXC: $e"
-                        
-                            // Ask user if we continue with release.  Continue or exit.
-                            userInput = input(
-                                id: 'userInput',    
-                                message: 'Continue with Release?',    
-                                parameters: [
-                                    [$class:'ChoiceParameterDefinition', 
-                                    choices: "YES\nNO",
-                                    name: 'Continue']
-                                ]  
-                            )
-                            if (userInput == "YES") {
-                                echo "You chose YES"
-                            } else if (userInput == "NO"){
-                                echo "You chose NO"
-                                throw e
-                            }                            
-                        }
-                    }
-                }
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                             echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        } 
+                    }//end catch
+
+                }//end w/creds
+
+            }
+
+            Stage ('Continue...') {
+                // Ask user if we continue with release.  Continue or exit.
+                userInput = input(
+                    id: 'userInput',    
+                    message: 'Continue with Release?',    
+                    parameters: [
+                        [$class:'ChoiceParameterDefinition', 
+                        choices: "YES\nNO",
+                        name: 'Continue']
+                    ]  
+                )
+                if (userInput == "YES") {
+                    echo "You chose YES"
+                } else if (userInput == "NO"){
+                    echo "You chose NO"
+                    throw e
+                } 
+            }
+
+
  
                 stage ('Merge Rice Release Finish')
                 {
