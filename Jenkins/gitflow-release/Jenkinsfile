@@ -132,24 +132,6 @@ node ('ec2_java_maven') {
 
             }//end stage
 
-            stage ('Continue...') {
-                // Ask user if we continue with release.  Continue or exit.
-                userInput = input(
-                    id: 'userInput',    
-                    message: 'Continue with Release?',    
-                    parameters: [
-                        [$class:'ChoiceParameterDefinition', 
-                        choices: "YES\nNO",
-                        name: 'Continue']
-                    ]  
-                )
-                if (userInput == "YES") {
-                    echo "You chose YES"
-                } else if (userInput == "NO"){
-                    echo "You chose NO"
-                    throw e
-                } 
-            }
 
             stage ('Bump Rice Dev Branch') {        
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
@@ -221,24 +203,6 @@ node ('ec2_java_maven') {
 
             }
 
-            stage ('Continue...') {
-                // Ask user if we continue with release.  Continue or exit.
-                userInput = input(
-                    id: 'userInput',    
-                    message: 'Continue with Release?',    
-                    parameters: [
-                        [$class:'ChoiceParameterDefinition', 
-                        choices: "YES\nNO",
-                        name: 'Continue']
-                    ]  
-                )
-                if (userInput == "YES") {
-                    echo "You chose YES"
-                } else if (userInput == "NO"){
-                    echo "You chose NO"
-                    throw e
-                } 
-            }
 
             stage ('Merge Rice Release to Master') {
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
@@ -292,24 +256,6 @@ node ('ec2_java_maven') {
 
             }
 
-            stage ('Continue...') {
-                // Ask user if we continue with release.  Continue or exit.
-                userInput = input(
-                    id: 'userInput',    
-                    message: 'Continue with Release?',    
-                    parameters: [
-                        [$class:'ChoiceParameterDefinition', 
-                        choices: "YES\nNO",
-                        name: 'Continue']
-                    ]  
-                )
-                if (userInput == "YES") {
-                    echo "You chose YES"
-                } else if (userInput == "NO"){
-                    echo "You chose NO"
-                    throw e
-                } 
-            }
 
             stage ('Merge Rice Release to Develop') {
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
@@ -377,102 +323,62 @@ node ('ec2_java_maven') {
 
             }
 
-            stage ('Continue...') {
-                // Ask user if we continue with release.  Continue or exit.
-                userInput = input(
-                    id: 'userInput',    
-                    message: 'Continue with Release?',    
-                    parameters: [
-                        [$class:'ChoiceParameterDefinition', 
-                        choices: "YES\nNO",
-                        name: 'Continue']
-                    ]  
-                )
-                if (userInput == "YES") {
-                    echo "You chose YES"
-                } else if (userInput == "NO"){
-                    echo "You chose NO"
-                    throw e
-                } 
-            }
 
-            stage ('Build Rice')
-            {   
+            stage ('Build Rice') {   
                 echo "Building Rice ..."
                 // NOTE:  Parameters here will be used for the job as expected.
                 build job: 'Rene - KFS 7 - Release Build - Rice', parameters: [string(name: 'RELEASE_VERSION', value: env.RELEASE_VERSION), string(name: 'RICE_APP_VERSION', value: env.RICE_RELEASE_VERSION)]
-
-            }
-
-            stage ('Continue...') {
-                // Ask user if we continue with release.  Continue or exit.
-                userInput = input(
-                    id: 'userInput',    
-                    message: 'Continue with Release?',    
-                    parameters: [
-                        [$class:'ChoiceParameterDefinition', 
-                        choices: "YES\nNO",
-                        name: 'Continue']
-                    ]  
-                )
-                if (userInput == "YES") {
-                    echo "You chose YES"
-                } else if (userInput == "NO"){
-                    echo "You chose NO"
-                    throw e
-                } 
             }
 
 
+            stage ('Update Rice Dependency'){        
+                withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    
+                    // Update the version of the Rice dependency in the KFS dev project to be the new release version.
+                    cleanWs()
+                    checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
+                    sh "git config user.name $GIT_USERNAME"
+                    sh 'git config user.email katt-toolsadm@.list.arizona.edu'
+                    sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
 
-               stage ('Update Rice Dependency')
-                {        
-                    withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) 
-                    {
-                        // Update the version of the Rice dependency in the KFS dev project to be the new release version.
-                        // push to publish
-                        cleanWs()
-                        echo "Checkout repo: " + env.KFS_REPO_URL
-                        echo "Checkout KFS Branch: " + env.KFS_DEV_BRANCH
-                        checkout([$class: 'GitSCM', branches: [[name: env.KFS_DEV_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', url: env.KFS_REPO_URL]]])
-                        sh 'git branch'
-                        sh "git config user.name $GIT_USERNAME"
-                        sh 'git config user.email katt-toolsadm@.list.arizona.edu'
-                        sh 'git config --local credential.helper "!p() { echo username=\\$GIT_USERNAME; echo password=\\$GIT_PASSWORD; }; p"'
+                    try {
                         sh "git checkout $KFS_DEV_BRANCH"
-                        
-                        
-                        // *****TODO VERIFY 
-                        // Verify with user the rice dependency version: $RICE_RELEASE_VERSION
-                        // Nov 01, 2019 using -SNAPSHOT and bumping rice.version here.  Will we need to also bump in the release branch?
-                        def DepInfo = input message: 'TODO: Verify Rice Dependency Version does not include -SNAPSHOT',
-                            parameters: 
-                                [
-                                    string(
-                                        defaultValue: env.NEXT_DEV_VERSION,
-                                        description: ' ',
-                                        name: 'DEP_VERSION')
-                                ],
-                            submitterParameter: 'approver'
-                        env.DEPENDENCY_RICE_VERSION=DepInfo['DEP_VERSION']  // User may have entered corrected value so we re-initialize.
-                        echo "DEPENDENCY_RICE_VERSION= " + env.DEPENDENCY_RICE_VERSION
-                        echo "Answered by " + DepInfo['approver']
-                        // End Verify
-                        
+                        sh 'git pull'
 
-                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$DEPENDENCY_RICE_VERSION"'
-                        echo "EXAMINE DIFF OUTPUT FROM GIT!!!"
-                        sh 'git diff'                
-
+                        sh 'mvn versions:set-property -DgenerateBackupPoms=false -Dproperty=rice.version  -DnewVersion="$RICE_RELEASE_VERSION"'
+                        sh 'git diff'
                         sh 'git add .'
                         sh 'git status'
-                        sh 'git commit -m "RCFJenkins: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
-                        sh 'git status'
-                        sh 'git push'
-                        //sh "git push --set-upstream origin RF-$KFS_DEV_BRANCH"
-                        //sh 'git status'
-                    }
-                }
+                        sh 'git commit -m "JenkinsRelease: Updating version of rice dependency to be: $RICE_RELEASE_VERSION"'
+                        sh 'git push'  
+                        sh 'git status'                 
+                    }   
+                    catch (Exception e){
+                        echo "EXCP:CAUGHT: trying to update Rice Dependency in KFS dev branch: $KFS_DEV_BRANCH "
+                        echo "EXC: $e"
+                        
+                        // Ask user if we continue with release.  Continue or exit.
+                        userInput = input(
+                            id: 'userInput',    
+                            message: 'Continue with Release?',    
+                            parameters: [
+                                [$class:'ChoiceParameterDefinition', 
+                                choices: "YES\nNO",
+                                name: 'Continue']
+                            ]  
+                        )
+                        if (userInput == "YES") {
+                            echo "You chose YES"
+                        } else if (userInput == "NO"){
+                            echo "You chose NO"
+                            throw e
+                        }                            
+                    }//end catch
+                    
+
+                }//end w/creds
+
+            }
 
 
                 stage ('Bump KFS Dev Branch')
