@@ -204,7 +204,7 @@ node ('ec2_java_maven') {
 
             }
 
-            Stage ('Continue...') {
+            stage ('Continue...') {
                 // Ask user if we continue with release.  Continue or exit.
                 userInput = input(
                     id: 'userInput',    
