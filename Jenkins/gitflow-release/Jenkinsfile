@@ -520,10 +520,9 @@ node ('ec2_java_maven') {
                     sh 'git tag -a "RF-TAG-$KFS_RELEASE_VERSION" -m "Jenkins: Release $KFS_RELEASE_VERSION"'
                     sh 'git push --tags'
 
-                    }//end w/creds
+                }//end w/creds
 
-                }
-
+            }
 
             stage ('Merge KFS Release to Develop'){
                 withCredentials([usernamePassword(credentialsId: 'feb1872d-77aa-4ec0-be3f-c7d7d629f50e', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
