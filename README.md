@@ -1,3 +1,5 @@
+**This repository has been moved to https://bitbucket.org/uits-ksd/devops-automation-scripts and is read-only here.**
+
 # devops-automation-scripts
 Scripts used to automate as much of our processes as possible.
 
